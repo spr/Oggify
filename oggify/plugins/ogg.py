@@ -8,8 +8,8 @@ class Codec(plugins.Codec):
     type = property(lambda s: "output")
 
     def encode(self, file, quality, nice, input, stdout):
-        args = ["nice", "-n", nice, "oggenc", "-q", quality, "-o", file, "-"]
-        return Popen(args, stding=input, stdout=stdout, stderr=STDOUT)
+        args = ["nice", "-n", str(nice), "oggenc", "-q", str(quality), "-o", file, "-"]
+        return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
 
     def set_tags(self, file, tags):
         ogg_tags = tag(file)

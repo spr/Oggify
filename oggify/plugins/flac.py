@@ -8,7 +8,7 @@ class Codec(plugins.Codec):
     type = property(lambda s: "input")
 
     def decode(self, file, nice):
-        args = ["nice", "-n", nice, "flac", "--totally-silent", "-d", "-c", "file"]
+        args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-d", "-c", file]
         return Popen(args, stdout=PIPE)
 
     def set_tags(self, file, tags):

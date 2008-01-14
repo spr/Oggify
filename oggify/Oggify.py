@@ -4,7 +4,7 @@ This module provides the external functions for using Oggify operations in
 your programs.
 """
 
-import os, os.path, sys, re
+import os, os.path, sys, re, tempfile, shutil
 
 class OggifyError(StandardError):
     """Runtime error for Oggify"""
@@ -18,12 +18,12 @@ def _walk_src_tree(root, src_ext, dst_ext):
     os.chdir(root)
     for current, subdirs, files in os.walk('.'):
         for subdir in subdirs:
-            dirs['/'.join((current[2:], subdir))] = None
+            dirs[os.path.join(current[2:], subdir)] = None
             if os.path.islink(subdir):
                 symlink_dirs.append(subdir)
         for file in files:
             if file.endswith(src_ext):
-                src_fname = '/'.join((current[2:], file))
+                src_fname = os.path.join(current[2:], file)
                 dst_fname = '.'.join(src_fname.split('.')[:-1] + [dst_ext])
                 encode[src_fname] = dst_fname
     os.chdir(org_dir)
@@ -41,22 +41,32 @@ def _compare_dst_tree(root, src_ext, dst_ext, encode, dirs):
         dont_walk = []
         for subdir in subdirs:
             if '/'.join((current[2:], subdir)) not in dirs:
-                purge.append('/'.join((current[2:], subdir)))
+                purge.append(os.path.join(current, subdir))
                 subdirs.remove(dir)
 
         for file in files:
-            src_eq = '/'.join((current[2:],
-                '.'.join(file.split('.')[:-1] + [src_extension])))
+            src_eq = os.path.join(current[2:],
+                '.'.join(file.split('.')[:-1] + [src_ext]))
             if src_eq in encode:
-                if not file.endswith(extension):
-                    limited_purge.append('/'.join((current[2:], file)))
+                if not file.endswith(dst_ext):
+                    limited_purge.append(os.path.join(current, file))
                 else:
                     reencode[src_eq] = encode[src_eq]
                     del encode[src_eq]
             else:
-                purge.append('/'.join((current[2:], file)))
+                purge.append(os.path.join(current, file))
     os.chdir(org_dir)
     return (encode, reencode, limited_purge, purge)
+
+def _adjust_filenames(src_dir, dst_dir, encode, reencode):
+    n_encode = {}
+    n_reencode = {}
+    for k,v in encode.items():
+        n_encode[os.path.join(src_dir, k)] = os.path.join(dst_dir, v)
+    for k,v in reencode.items():
+        n_reencode[os.path.join(src_dir, k)] = os.path.join(dst_dir, v)
+    return (n_encode, n_reencode)
+
 
 def diff(src_dir, dst_dir, src_ext, dst_ext):
     """Produce action structures for Oggify.
@@ -78,9 +88,18 @@ def diff(src_dir, dst_dir, src_ext, dst_ext):
             with src_ext. Any non-src_ext files will wind up here.
     """
     (encode, src_dirs) = _walk_src_tree(src_dir, src_ext, dst_ext)
-    return _compare_dst_tree(dst_src, src_ext, encode, src_dirs)
+    (encode, reencode, limited_purge, purge) =  _compare_dst_tree(dst_dir,
+            src_ext, dst_ext, encode, src_dirs)
+    (encode, reencode) = _adjust_filenames(src_dir, dst_dir, encode, reencode)
+    return (encode, reencode, limited_purge, purge)
 
-def list_plugins(type):
+def list_plugins(type='both'):
+    """List the installed oggify plugins.
+        type - 'input' or 'output' or 'both'.
+
+    Returns a list of strings representing the installed oggify plugins
+    of type.
+    """
     from oggify import plugins
     plugin_dir = plugins.__path__[0]
     contents = os.listdir(plugin_dir)
@@ -130,19 +149,27 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
     This properly calls the Codec objects to take src_file to dst_file.
     """
 
-    output = None
     if verbose:
         output = sys.stdout
+    else:
+        output = open(os.devnull, 'w')
     print "Encoding %s to %s" % (src_file, dst_file)
 
     dir = os.path.dirname(dst_file)
-    os.makedirs(dir)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     decoder_process = decoder.decode(src_file, nice)
     if temp_file == None:
-        temp_file = os.tempnam()
-    encoder_process = encoder.encode(temp_file, quality, nice
-            decoder_process.pipe, output)
+        temp_file = tempfile.mkstemp()[1]
+    encoder_process = encoder.encode(temp_file, quality, nice,
+            decoder_process.stdout, output)
     encoder_process.wait()
-    if encoder_process.returncode != 0 or decoder_process.returncode != 0:
+    if ((encoder_process.returncode != 0 
+                and encoder_process.returncode != None)
+            or (decoder_process.returncode != 0
+                and decoder_process.returncode != None)):
         raise OggifyError("Encode/decode process failure")
-    os.rename(temp_file, dst_file)
+    shutil.copy(temp_file, dst_file)
+    encoder.set_tags(dst_file, decoder.get_tags(src_file))
+    if not verbose:
+        output.close()
