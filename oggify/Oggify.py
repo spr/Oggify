@@ -5,9 +5,9 @@ This is the worker module of Oggify. All common functions live here.
 
 import os, os.path
 
-def _walk_src_tree(root, extension):
+def _walk_src_tree(root, src_ext, dst_ext):
     org_dir = os.getcwd()
-    chdir(root)
+    os.chdir(root)
     symlink_dirs = []
     directories = {}
     encode = {}
@@ -17,14 +17,16 @@ def _walk_src_tree(root, extension):
             if os.path.islink(subdir):
                 symlink_dirs.append(subdir)
         for file in files:
-            if file.endswith(extension):
-                encode['/'.join((current[2:], file))] = None
-    chdir(org_dir)
+            if file.endswith(src_ext):
+                encode['/'.join((current[2:], file))] = \
+                        '/'.join((current[2:],
+                            '.'.join(file.split('.')[:-1] + [dst_ext])))
+    os.chdir(org_dir)
     return (encode, directories)
 
 def _compare_dst_tree(root, extension, encode, directories, src_extension):
     org_dir = os.getcwd()
-    chdir(root)
+    os.chdir(root)
     reencode = {}
     limited_purge = []
     purge = []
@@ -48,9 +50,9 @@ def _compare_dst_tree(root, extension, encode, directories, src_extension):
                     del encode[src_eq]
             else:
                 purge.append('/'.join((current[2:], file)))
-    chdir(org_dir)
+    os.chdir(org_dir)
     return (encode, reencode, limited_purge, purge)
 
 def diff(src_dir, dst_dir, src_ext, dst_ext):
-    (encode, src_directories) = _walk_src_tree(src_dir, src_ext)
+    (encode, src_directories) = _walk_src_tree(src_dir, src_ext, dst_ext)
     return _compare_dst_tree(dst_dir, dst_ext, encode, src_directories, src_ext)
