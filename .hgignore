@@ -1,1 +1,2 @@
-\.pyc$
+syntax: glob
+*.pyc
