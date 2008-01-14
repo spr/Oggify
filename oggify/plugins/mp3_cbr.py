@@ -21,9 +21,9 @@ class Codec(plugins.Codec):
     extension = property(lambda s: "mp3", doc="mp3")
     type = property(lambda s: "output")
 
-    def encode(self, file, quality, input, stdout):
+    def encode(self, file, quality, nice, input, stdout):
         actual = lame_quality_conversion[quality]
-        args = ["lame", actual, "-", file]
+        args = ["nice", "-n", nice, "lame", actual, "-", file]
         return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
 
     def set_tags(self, file, tags):

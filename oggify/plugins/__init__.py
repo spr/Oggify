@@ -21,12 +21,13 @@ class Codec:
     'both' - if provides both encoding and decoding
     """)
 
-    def encode(self, file, quality, input, stdout):
+    def encode(self, file, quality, nice, input, stdout):
         """Prep the encoding process using stdin as the source.
             file - string of the output file name
             quality - A value from 0 to 10 representing the quality of the
                       resulting audio file. See reference plugins for
                       examples.
+            nice - Value for nice in this process.
             input - file handle of the pipe with the raw audio
             stdout - file handle for stdout of the process
 
@@ -36,9 +37,10 @@ class Codec:
         Returns subprocess.Popen(stdin=input, stdout=stdout, stderr=STDOUT)
         """
         raise OggifyPluginException("This is not an output plugin")
-    def decode(self, file):
+    def decode(self, file, nice):
         """Prep the decoding process using stdout for the data.
             file - string of the output file name
+            nice - Value for nice in this process
 
         Raises OggifyPluginException if called on a Codec that does not
         support decoding.

@@ -2,7 +2,8 @@
 
 from oggify import Oggify, plugins
 from optparse import OptionParser
-import sys
+from os import path
+import sys, os
 
 def setup_parser(parser):
     parser.add_option("-s", "--source", dest="source_plugin",
@@ -12,15 +13,15 @@ def setup_parser(parser):
             help="Select the output format to use [default=%default].")
     parser.set_defaults(output_plugin="ogg")
     parser.add_option("-v", "--verbose", action="store_true",
-            dest="verbosity", help="More detailed output.")
-    parser.set_defaults(verbosity=False)
+            dest="verbose", help="More detailed output.")
+    parser.set_defaults(verbose=False)
     parser.add_option("-q", "--quality", type="int", dest="quality",
-            help="Sets the quality to <number> [default=%default].",
-            metavar="<number>")
+            help="Sets the quality to VALUE [default=%default].",
+            metavar="VALUE")
     parser.set_defaults(quality=5)
     parser.add_option("-n", "--nice", type="int", dest="nice",
-            help="nice the tasks to <value> [default=%default].",
-            metavar="<value>")
+            help="nice the tasks to VALUE [default=%default].",
+            metavar="VALUE")
     parser.set_defaults(nice=10)
     parser.add_option("-p", "--pretend", action="store_true",
             dest="pretend", help="Print actions that will be performed.")
@@ -35,12 +36,87 @@ def setup_parser(parser):
             help="Remove files that are encoded in the incorrect format.")
     parser.set_defaults(clean=False)
 
+def verify_options(options):
+    if options.quality < 0 or options.quality > 10:
+        print >>sys.stderr, "Quality %s is not between 0 and 10" % options.quality
+        return False
+    if options.source_plugin not in Oggify.list_plugins('input'):
+        print >>sys.stderr, "%s not an input plugin" % options.source_plugin
+        return False
+    if options.output_plugin not in Oggify.list_plugins('output'):
+        print >>sys.stderr, "%s not an output plugin" % options.output_plugin
+        return False
+    if options.nice < -20 or options.nice > 19:
+        print >>sys.stderr, "Nice value %s not between -20 and 18" % options.nice
+        return False
+    return True
+
+def verify_args(args):
+    if not os.path.exists(args[0]):
+        print >>sys.stderr, "%s does not exist, not a valid src directory" % args[0]
+        return False
+    return True
+
 def main(argv=sys.argv):
     usage = "%prog [options] <src> <dest>"
-    parser = OptionParser(usage=usage)
+    desc = """Input Plugins: %s
+    Output Plugins: %s""" % (Oggify.list_plugins('input'),
+            Oggify.list_plugins('output'))
+    parser = OptionParser(usage=usage, description=desc)
     setup_parser(parser)
 
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
+
+    if not verify_options(options):
+        parser.print_help()
+        return -1
+    if not verify_args(args):
+        parser.print_help()
+        return -1
+
+    decoder = Oggify.load_plugin(options.source_plugin, 'input')
+    encoder = Oggify.load_plugin(options.output_plugin, 'output')
+
+    encode, reencode, limited_purge, purge = Oggify.diff(args[0], args[1],
+            decoder.extension, encoder.extension)
+
+    for src in encode.keys().sort():
+        if options.pretend:
+            print "Encoding %s to %s" % (src, encode[src])
+            continue
+        process_file(decoder, encoder, src, encode[src], options.quality,
+                options,nice, options.verbose)
+
+    if options.refresh:
+        for src in reencode.keys().sort():
+            if path.getmtime(src) > path.getmtime(reencode[src]):
+                if options.pretend:
+                    print "Encoding %s to %s" % (src, reencode[src])
+                    continue
+                process_file(decoder, encoder, src, encode[src],
+                        options.quality, options.nice, options.verbose)
+
+
+    if options.clean:
+        for item in limited_purge:
+            print "Removing %s" % item
+            if options.pretend:
+                continue
+            if path.isdir(item):
+                os.removedirs(item)
+            else:
+                os.unlink(item)
+    if options.purge:
+        for item in purge:
+            print "Removing %s" % item
+            if options.pretend:
+                continue
+            if path.isdir(item):
+                os.removedirs(item)
+            else:
+                os.unlink(item)
+
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

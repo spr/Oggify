@@ -87,12 +87,12 @@ def list_plugins(type):
     plugins = []
     for filename in contents:
         if re.search(r'\.py$', filename) and filename != '__init__.py':
-            plugins.append(filename.split('.')[0])
-    for plugin in plugins:
-        mod = __import__('.'.join(('oggify', 'plugins', plugin)), fromlist=[''])
-        codec = mod.Codec()
-        if codec.type != type and codec.type != 'both':
-            plugins.remove(plugin)
+            plugin = filename.split('.')[0]
+            mod = __import__('.'.join(('oggify', 'plugins', plugin)),
+                    fromlist=[''])
+            codec = mod.Codec()
+            if codec.type == type or codec.type == 'both' or type == 'both':
+                plugins.append(plugin)
     return plugins
 
 def load_plugin(plugin, type):
@@ -102,7 +102,7 @@ def load_plugin(plugin, type):
 
     Raises an OggifyError if the plugin requested does not support the type.
 
-    Returns oggify.plugins.Codec of the plugin.
+    Returns oggify.plugins.Codec object of the plugin.
     """
     mod = __import__('.'.join(('oggify', 'plugins', plugin)),
             fromlist=[''])
@@ -112,14 +112,15 @@ def load_plugin(plugin, type):
     return codec
 
 def process_file(decoder, encoder, src_file, dst_file, quality,
-        verbosity=0, temp_file=None):
+        nice=10, verbose=0, temp_file=None):
     """Encode a file using the correct source format file.
         decoder - oggify.plugins.Codec, type 'input'
         encoder - oggfiy.plugins.Codec, type 'output'
         src_file - string, source file (from oggify.Oggify.diff)
         dst_file - string, destination file (from oggify.Oggify.diff)
         quality - int, 0 - 10. Quality to use for encoding (see oggenc(1))
-        verbosity - boolean, Determines how much is printed to sys.stdout
+        nice - int, -20 - 19. Nice value to use for processing.
+        verbose - boolean, Determines how much is printed to sys.stdout
         temp_file - string, filename to use while encoding to handle 
                     interrupts
 
@@ -130,16 +131,16 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
     """
 
     output = None
-    if verbosity:
+    if verbose:
         output = sys.stdout
     print "Encoding %s to %s" % (src_file, dst_file)
 
     dir = os.path.dirname(dst_file)
     os.makedirs(dir)
-    decoder_process = decoder.decode(src_file)
+    decoder_process = decoder.decode(src_file, nice)
     if temp_file == None:
         temp_file = os.tempnam()
-    encoder_process = encoder.encode(temp_file, quality,
+    encoder_process = encoder.encode(temp_file, quality, nice
             decoder_process.pipe, output)
     encoder_process.wait()
     if encoder_process.returncode != 0 or decoder_process.returncode != 0:
