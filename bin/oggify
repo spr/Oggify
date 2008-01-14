@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+
+from oggify import Oggify, plugins
+from optparse import OptionParser
+import sys
+
+def setup_parser(parser):
+    parser.add_option("-s", "--source", dest="source_plugin",
+            help="Select the source format to use [default=%default].")
+    parser.set_defaults(source_plugin="flac")
+    parser.add_option("-o", "--output", dest="output_plugin",
+            help="Select the output format to use [default=%default].")
+    parser.set_defaults(output_plugin="ogg")
+    parser.add_option("-v", "--verbose", action="store_true",
+            dest="verbosity", help="More detailed output.")
+    parser.set_defaults(verbosity=False)
+    parser.add_option("-q", "--quality", type="int", dest="quality",
+            help="Sets the quality to <number> [default=%default].",
+            metavar="<number>")
+    parser.set_defaults(quality=5)
+    parser.add_option("-n", "--nice", type="int", dest="nice",
+            help="nice the tasks to <value> [default=%default].",
+            metavar="<value>")
+    parser.set_defaults(nice=10)
+    parser.add_option("-p", "--pretend", action="store_true",
+            dest="pretend", help="Print actions that will be performed.")
+    parser.set_defaults(pretend=False)
+    parser.add_option("-P", "--purge", action="store_true", dest="purge",
+            help="Remove unmatched items and directories from destination.")
+    parser.set_defaults(purge=False)
+    parser.add_option("-r", "--refresh", action="store_true", dest="refresh",
+            help="Re-encode files that are older than the source file.")
+    parser.set_defaults(refresh=False)
+    parser.add_option("-c", "--clean", action="store_true", dest="clean",
+            help="Remove files that are encoded in the incorrect format.")
+    parser.set_defaults(clean=False)
+
+def main(argv=sys.argv):
+    usage = "%prog [options] <src> <dest>"
+    parser = OptionParser(usage=usage)
+    setup_parser(parser)
+
+    (options, args) = parser.parse_args()
+
+if __name__ == '__main__':
+    sys.exit(main())

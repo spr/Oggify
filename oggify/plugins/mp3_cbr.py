@@ -3,16 +3,16 @@ from tag_wrapper import tag
 from subprocess import Popen, STDOUT
 
 lame_quality_conversion = [
-            '--preset medium',
-            '--preset medium',
-            '--preset medium',
-            '--preset standard',
-            '--preset standard',
-            '--preset standard',
-            '--preset extreme',
-            '--preset extreme',
-            '--preset extreme',
-            '--preset extreme',
+            '--preset cbr 64',
+            '--preset cbr 64',
+            '--preset cbr 96',
+            '--preset cbr 128',
+            '--preset cbr 160',
+            '--preset cbr 192',
+            '--preset cbr 256',
+            '--preset insane',
+            '--preset insane',
+            '--preset insane',
             '--preset insane',
         ]
 

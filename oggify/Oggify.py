@@ -4,7 +4,7 @@ This module provides the external functions for using Oggify operations in
 your programs.
 """
 
-import os, os.path, sys
+import os, os.path, sys, re
 
 class OggifyError(StandardError):
     """Runtime error for Oggify"""
@@ -80,6 +80,21 @@ def diff(src_dir, dst_dir, src_ext, dst_ext):
     (encode, src_dirs) = _walk_src_tree(src_dir, src_ext, dst_ext)
     return _compare_dst_tree(dst_src, src_ext, encode, src_dirs)
 
+def list_plugins(type):
+    from oggify import plugins
+    plugin_dir = plugins.__path__[0]
+    contents = os.listdir(plugin_dir)
+    plugins = []
+    for filename in contents:
+        if re.search(r'\.py$', filename) and filename != '__init__.py':
+            plugins.append(filename.split('.')[0])
+    for plugin in plugins:
+        mod = __import__('.'.join(('oggify', 'plugins', plugin)), fromlist=[''])
+        codec = mod.Codec()
+        if codec.type != type and codec.type != 'both':
+            plugins.remove(plugin)
+    return plugins
+
 def load_plugin(plugin, type):
     """Load an oggify plugin by string.
         plugin - string of the plugin
@@ -89,8 +104,9 @@ def load_plugin(plugin, type):
 
     Returns oggify.plugins.Codec of the plugin.
     """
-    codec = __import__('.'.join(('oggify', 'plugins', plugin)),
-            fromlist=("Codec",))
+    mod = __import__('.'.join(('oggify', 'plugins', plugin)),
+            fromlist=[''])
+    codec = mod.Codec()
     if codec.type != type and codec.type != 'both':
         raise OggifyError("%s is not a %s plugin!" % (plugin, type))
     return codec
@@ -103,7 +119,7 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
         src_file - string, source file (from oggify.Oggify.diff)
         dst_file - string, destination file (from oggify.Oggify.diff)
         quality - int, 0 - 10. Quality to use for encoding (see oggenc(1))
-        verbosity - int, 0 - 2. Determines how much is printed to sys.stdout
+        verbosity - boolean, Determines how much is printed to sys.stdout
         temp_file - string, filename to use while encoding to handle 
                     interrupts
 
@@ -114,10 +130,9 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
     """
 
     output = None
-    if verbosity > 1:
+    if verbosity:
         output = sys.stdout
-    if verbosity > 0:
-        print "Encoding %s to %s" % (src_file, dst_file)
+    print "Encoding %s to %s" % (src_file, dst_file)
 
     dir = os.path.dirname(dst_file)
     os.makedirs(dir)

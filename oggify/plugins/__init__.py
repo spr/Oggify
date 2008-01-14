@@ -15,8 +15,8 @@ class Codec:
     All children classes need to be named Codec, but the file name should
     be the expected command-line option. IE flac.py, ogg.py, mp3.py
     """
-    extension = property(lambda: "foo", doc="File extension for the codec")
-    type = property(lambda: "foo", doc="""'input' - if only provides decoding
+    extension = property(lambda s: "foo", doc="File extension for the codec")
+    type = property(lambda s: "foo", doc="""'input' - if only provides decoding
     'output' - if only provides encoding
     'both' - if provides both encoding and decoding
     """)
