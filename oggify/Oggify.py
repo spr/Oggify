@@ -173,3 +173,10 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
     encoder.set_tags(dst_file, decoder.get_tags(src_file))
     if not verbose:
         output.close()
+
+def purge(item):
+    print "Removing %s" % item
+    if os.path.isdir(item):
+        os.removedirs(item)
+    else:
+        os.unlink(item)

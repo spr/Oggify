@@ -58,16 +58,42 @@ def verify_options(options):
     return True
 
 def verify_args(args):
+    if len(args) != 2:
+        print >>sys.stderr, "Need to specify a source and destination only."
+        return False
     if not os.path.exists(args[0]):
         print >>sys.stderr, "%s does not exist, not a valid src directory" % args[0]
         return False
     return True
 
+def reencode_file(src, dst, decoder, encoder, quality, nice, verbose):
+    if path.getmtime(src) > path.getmtime(dst):
+        Oggify.process_file(decoder, encoder, src, quality, nice, verbose)
+
+def pretend(encode, reencode, limited_purge, purge, options):
+    encode_keys = encode.keys()
+    encode_keys.sort()
+    for src in encode_keys:
+        print "Encoding %s to %s" % (src, encode[src])
+    if options.refresh:
+        reencode_keys = reencode.keys()
+        reencode_keys.sort()
+        for src in reencode_keys:
+            if path.getmtime(src) > path.getmtime(dst):
+                print "Encoding %s to %s" % (src, reencode[src])
+    if options.clean:
+        for item in limited_purge:
+            print "Removing %s" % item
+    if options.purge:
+        for item in purge:
+            print "Removing %s" % item
+
 def main(argv=sys.argv):
     usage = "%prog [options] <src> <dest>"
-    desc = """Input Plugins: %s Output Plugins: %s""" % (Oggify.list_plugins('input'),
-            Oggify.list_plugins('output'))
-    parser = OptionParser(usage=usage, description=desc)
+    desc = """Input Plugins: %s Output Plugins: %s
+    """ % (Oggify.list_plugins('input'), Oggify.list_plugins('output'))
+    version = "%prog 2.0.0b1"
+    parser = OptionParser(usage=usage, description=desc, version=version)
     setup_parser(parser)
 
     options, args = parser.parse_args()
@@ -85,13 +111,13 @@ def main(argv=sys.argv):
     encode, reencode, limited_purge, purge = Oggify.diff(args[0], args[1],
             decoder.extension, encoder.extension)
 
+    if options.pretend:
+        pretend(encode, reencode, limited_purge, purge, options)
+        return 0
 
     encode_keys = encode.keys()
     encode_keys.sort()
     for src in encode_keys:
-        if options.pretend:
-            print "Encoding %s to %s" % (src, encode[src])
-            continue
         Oggify.process_file(decoder, encoder, src, encode[src],
                 options.quality, options.nice, options.verbose, temp_file)
 
@@ -99,33 +125,15 @@ def main(argv=sys.argv):
         reencode_keys = reencode.keys()
         reencode_keys.sort()
         for src in reencode_keys:
-            if path.getmtime(src) > path.getmtime(reencode[src]):
-                if options.pretend:
-                    print "Encoding %s to %s" % (src, reencode[src])
-                    continue
-                Oggify.process_file(decoder, encoder, src, encode[src],
-                        options.quality, options.nice, options.verbose)
-
+            reencode_file(src, reencode[src], decoder, encoder,
+                    options.quality, options.nice, options.verbose)
 
     if options.clean:
         for item in limited_purge:
-            print "Removing %s" % item
-            if options.pretend:
-                continue
-            if path.isdir(item):
-                os.removedirs(item)
-            else:
-                os.unlink(item)
+            Oggify.purge(item)
     if options.purge:
         for item in purge:
-            print "Removing %s" % item
-            if options.pretend:
-                continue
-            if path.isdir(item):
-                os.removedirs(item)
-            else:
-                os.unlink(item)
-
+            Oggify.purge(item)
     return 0
 
 if __name__ == '__main__':
