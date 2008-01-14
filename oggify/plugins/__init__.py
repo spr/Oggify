@@ -1,53 +1,61 @@
+"""Package containing available oggify plugins.
+
+Files in the package can be called as encoders and decoders for Oggify.
+Plugins all implement the Codec class, and are named as the string that
+they will be called as on the command-line.
+"""
+
 class OggifyPluginException(Exception):
+    """Basic Exception for Oggify plugins"""
     pass
 
-class Plugin:
-    """Plugin - General parent class of Oggify input/output plugins.
+class Codec:
+    """General parent class of Oggify input/output plugins.
 
-    All children classes need to be named Plugin, but the file name should
+    All children classes need to be named Codec, but the file name should
     be the expected command-line option. IE flac.py, ogg.py, mp3.py
     """
-    extension = property(lambda: "foo", doc="File extension")
-    type = property(lambda: "foo", doc="'input'/'output'/'both' depending")
+    extension = property(lambda: "foo", doc="File extension for the codec")
+    type = property(lambda: "foo", doc="""'input' - if only provides decoding
+    'output' - if only provides encoding
+    'both' - if provides both encoding and decoding
+    """)
 
-    def encode(self, file, quality, input, stdout, stderr):
-        """
-        Arguments:
+    def encode(self, file, quality, input, stdout):
+        """Prep the encoding process using stdin as the source.
             file - string of the output file name
             quality - A value from 0 to 10 representing the quality of the
                       resulting audio file. See reference plugins for
                       examples.
             input - file handle of the pipe with the raw audio
             stdout - file handle for stdout of the process
-            stderr - file handle for stderr of the process
 
-        Returns:
-            subprocess.Popen(stdin=input, stdout=stdout,
-                stderr=STDOUT)
+        Raises OggifyPluginException if called on a Codec that does not
+        support encoding.
+
+        Returns subprocess.Popen(stdin=input, stdout=stdout, stderr=STDOUT)
         """
         raise OggifyPluginException("This is not an output plugin")
     def decode(self, file):
-        """
-        Arguments:
+        """Prep the decoding process using stdout for the data.
             file - string of the output file name
 
-        Returns:
-            subprocess.Popen(stdout=PIPE)
+        Raises OggifyPluginException if called on a Codec that does not
+        support decoding.
+
+        Returns subprocess.Popen(stdout=PIPE)
         """
         raise OggifyPluginException("This is not an input plugin")
     def set_tags(self, file, tags):
-        """
-        Arguments:
+        """Set the tags on a file.
             file - string of the filename to set the tags on
             tags - dictionary of tags. (tag_wrapper.Tag)
         """
         raise NotImplementedError("Plugin is a stub")
     def get_tags(self, file):
-        """
-        Arguments:
+        """Get the tags from a file.
             file - string of the filename to get the tags from
 
-        Returns:
-            tags - dictionary of tags. (tag_wrapper.Tag)
+        Returns tags - dictionary of tags. (tag_wrapper.Tag)
         """
         raise NotImplementedError("Plugin is a stub")

@@ -2,12 +2,12 @@ from oggify import plugins
 from tag_wrapper import tag
 from subprocess import Popen, STDOUT
 
-class Plugin(plugins.Plugin):
+class Codec(plugins.Plugin):
 
     extension = property(lambda: "ogg", doc="ogg")
     type = property(lambda: "output")
 
-    def encode(self, file, quality, input, stdout, stderr):
+    def encode(self, file, quality, input, stdout):
         args = ["oggenc", "-q", quality, "-o", file, "-"]
         return Popen(args, stding=input, stdout=stdout, stderr=STDOUT)
 

@@ -2,7 +2,7 @@ from oggify import plugins
 from tag_wrapper import tag
 from subprocess import Popen, PIPE
 
-class Plugin(plugins.Plugin):
+class Codec(plugins.Plugin):
 
     extension = property(lambda: "flac", doc="flac")
     type = property(lambda: "input")
