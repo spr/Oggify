@@ -15,7 +15,7 @@ setup(name='Oggify',
       author_email='spr@scottr.org',
       url='http://scottr.org/oggify/',
       packages=['oggify', 'oggify.plugins'],
-      requires=['tag_wrapper'],
+      requires=['mutagen (>=1.12)'],
       scripts=['bin/oggify'],
       classifiers=[
           'Development Status :: 4 - Beta',
