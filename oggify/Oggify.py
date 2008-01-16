@@ -29,22 +29,29 @@ class OggifyError(StandardError):
     """Runtime error for Oggify"""
     pass
 
-def _walk_src_tree(root, src_ext, dst_ext):
-    symlink_dirs = []
+def _process_walk(current, subdirs, files, encode, dirs, sym):
+    for subdir in subdirs:
+        dirs[os.path.join(current[2:], subdir)] = None
+        if os.path.islink(subdir):
+            sym.append(subdir)
+    for file in files:
+        if file.endswith(src_ext):
+            src_fname = os.path.join(current[2:], file)
+            dst_fname = '.'.join(src_fname.split('.')[:-1] + [dst_ext])
+            encode[src_fname] = dst_fname
+
+def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False):
+    sym = []
     dirs = {}
     encode = {}
     org_dir = os.getcwd()
     os.chdir(root)
     for current, subdirs, files in os.walk('.'):
-        for subdir in subdirs:
-            dirs[os.path.join(current[2:], subdir)] = None
-            if os.path.islink(subdir):
-                symlink_dirs.append(subdir)
-        for file in files:
-            if file.endswith(src_ext):
-                src_fname = os.path.join(current[2:], file)
-                dst_fname = '.'.join(src_fname.split('.')[:-1] + [dst_ext])
-                encode[src_fname] = dst_fname
+        _process_walk(current, subdirs, files, encode, dirs, sym)
+    if follow_symlinks:
+        for dir in sym:
+            for current, subdirs, files in os.walk(dir):
+                _process_walk(current, subdirs, files, encode, dirs, sym)
     os.chdir(org_dir)
     return (encode, dirs)
 
@@ -87,7 +94,7 @@ def _adjust_filenames(src_dir, dst_dir, encode, reencode):
     return (n_encode, n_reencode)
 
 
-def diff(src_dir, dst_dir, src_ext, dst_ext):
+def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
     """Produce action structures for Oggify.
         src_dir - the root of the source tree
         src_ext - the extension to use for source files, ie: 'flac'
@@ -106,7 +113,8 @@ def diff(src_dir, dst_dir, src_ext, dst_ext):
         purge - A list of files and directories that do not exist in src_dir
             with src_ext. Any non-src_ext files will wind up here.
     """
-    (encode, src_dirs) = _walk_src_tree(src_dir, src_ext, dst_ext)
+    (encode, src_dirs) = _walk_src_tree(src_dir, src_ext, dst_ext, 
+            follow_symlinks)
     (encode, reencode, limited_purge, purge) =  _compare_dst_tree(dst_dir,
             src_ext, dst_ext, encode, src_dirs)
     (encode, reencode) = _adjust_filenames(src_dir, dst_dir, encode, reencode)

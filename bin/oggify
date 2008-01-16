@@ -44,6 +44,9 @@ def setup_parser(parser):
             help="Sets the quality to VALUE [default=%default].",
             metavar="VALUE")
     parser.set_defaults(quality=5)
+    parser.add_option("-L", "--follow-symlinks", action="store_true",
+            dest="follow_symlinks", help="Follow symlinks in source tree")
+    praser.set_defaults(follow_symlinks=False)
     parser.add_option("-n", "--nice", type="int", dest="nice",
             help="nice the tasks to VALUE [default=%default].",
             metavar="VALUE")
@@ -128,7 +131,7 @@ def main(argv=sys.argv):
     encoder = Oggify.load_plugin(options.output_plugin, 'output')
 
     encode, reencode, limited_purge, purge = Oggify.diff(args[0], args[1],
-            decoder.extension, encoder.extension)
+            decoder.extension, encoder.extension, options.follow_symlinks)
 
     if options.pretend:
         pretend(encode, reencode, limited_purge, purge, options)
