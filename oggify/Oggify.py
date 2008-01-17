@@ -29,7 +29,7 @@ class OggifyError(StandardError):
     """Runtime error for Oggify"""
     pass
 
-def _process_walk(current, subdirs, files, encode, dirs, sym):
+def _process_walk(current, subdirs, files, encode, dirs, sym, src_ext, dst_ext):
     for subdir in subdirs:
         dirs[os.path.join(current[2:], subdir)] = None
         if os.path.islink(subdir):
@@ -47,7 +47,8 @@ def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False):
     org_dir = os.getcwd()
     os.chdir(root)
     for current, subdirs, files in os.walk('.'):
-        _process_walk(current, subdirs, files, encode, dirs, sym)
+        _process_walk(current, subdirs, files, encode, dirs,
+                sym, src_ext, dst_ext)
     if follow_symlinks:
         for dir in sym:
             for current, subdirs, files in os.walk(dir):
