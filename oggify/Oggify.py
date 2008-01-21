@@ -65,11 +65,14 @@ def _compare_dst_tree(root, src_ext, dst_ext, encode, dirs):
     org_dir = os.getcwd()
     os.chdir(root)
     for current, subdirs, files in os.walk('.'):
-        dont_walk = []
         for subdir in subdirs:
-            if '/'.join((current[2:], subdir)) not in dirs:
+            if current != '.':
+                test = '/'.join((current[2:], subdir))
+            else:
+                test = subdir
+            if test not in dirs:
                 purge.append(os.path.join(current, subdir))
-                subdirs.remove(dir)
+                subdirs.remove(subdir)
 
         for file in files:
             src_eq = os.path.join(current[2:],

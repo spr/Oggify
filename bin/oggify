@@ -102,7 +102,7 @@ def pretend(encode, reencode, limited_purge, purge, options):
         reencode_keys.sort()
         for src in reencode_keys:
             if path.getmtime(src) > path.getmtime(dst):
-                print "Encoding %s to %s" % (src, reencode[src])
+                print "Reencoding %s to %s" % (src, reencode[src])
     if options.clean:
         for item in limited_purge:
             print "Removing %s" % item

@@ -22,17 +22,17 @@ from tag_wrapper import tag
 from subprocess import Popen, STDOUT
 
 lame_quality_conversion = [
-            '--preset 64',
-            '--preset 64',
-            '--preset 96',
-            '--preset 128',
-            '--preset 160',
-            '--preset 192',
-            '--preset 256',
-            '--preset 320',
-            '--preset 320',
-            '--preset 320',
-            '--preset insane',
+            ['--preset', '64'],
+            ['--preset', '64'],
+            ['--preset', '96'],
+            ['--preset', '128'],
+            ['--preset', '160'],
+            ['--preset', '192'],
+            ['--preset', '256'],
+            ['--preset', '320'],
+            ['--preset', '320'],
+            ['--preset', '320'],
+            ['--preset', 'insane'],
         ]
 
 class Codec(plugins.Codec):
@@ -42,7 +42,7 @@ class Codec(plugins.Codec):
 
     def encode(self, file, quality, nice, input, stdout):
         actual = lame_quality_conversion[quality]
-        args = ["nice", "-n", str(nice), "lame", actual, "-", file]
+        args = ["nice", "-n", str(nice), "lame"] + actual + ["-", file]
         return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
 
     def set_tags(self, file, tags):
