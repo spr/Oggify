@@ -52,7 +52,8 @@ def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False):
     if follow_symlinks:
         for dir in sym:
             for current, subdirs, files in os.walk(dir):
-                _process_walk(current, subdirs, files, encode, dirs, sym)
+                _process_walk(current, subdirs, files, encode, dirs, sym,
+                        src_ext, dst_ext)
     os.chdir(org_dir)
     return (encode, dirs)
 
