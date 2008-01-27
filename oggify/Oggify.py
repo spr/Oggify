@@ -31,12 +31,12 @@ class OggifyError(StandardError):
 
 def _process_walk(current, subdirs, files, encode, dirs, sym, src_ext, dst_ext):
     for subdir in subdirs:
-        dirs[os.path.join(current[2:], subdir)] = None
+        dirs[os.path.join(current, subdir)] = None
         if os.path.islink(subdir):
             sym.append(subdir)
     for file in files:
         if file.endswith(src_ext):
-            src_fname = os.path.join(current[2:], file)
+            src_fname = os.path.join(current, file)
             dst_fname = '.'.join(src_fname.split('.')[:-1] + [dst_ext])
             encode[src_fname] = dst_fname
 
@@ -47,7 +47,7 @@ def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False):
     org_dir = os.getcwd()
     os.chdir(root)
     for current, subdirs, files in os.walk('.'):
-        _process_walk(current, subdirs, files, encode, dirs,
+        _process_walk(current[2:], subdirs, files, encode, dirs,
                 sym, src_ext, dst_ext)
     if follow_symlinks:
         for dir in sym:
