@@ -81,8 +81,8 @@ class ID3Tag(Tag):
         return new_key
 
     def __getitem__(self, key):
-        """__getitem__: artist = tag['artist']
-        If a tag has multiple values, we return a list of them.
+        """ __getitem__: artist = tag['artist']
+        Returns a list of values
         """
         id3_tag = self._tag[self._get_new_key(key)]
         return id3_tag.text
@@ -93,23 +93,20 @@ class ID3Tag(Tag):
         a list themselves. If the tag already exists we overwrite the data.
         """
         # Tag is a supported frame
+        nkey = self._get_new_key(key)
         if key in norm_frame_mapping:
             # FYI: Adding support for non-text frames will require more
             # logic here.
-            tag_class = getattr(id3, norm_frame_mapping[key])
-            self._tag.add(
-                    tag_class(encoding=self.encoding, text=value)
-                    )
+            tag_class = getattr(id3, nkey)
+            self._tag[nkey] = tag_class(encoding=self.encoding, text=value)
         # Tag is a comment
         else:
             if key == 'comment' or key == 'description':
                 desc = ''
             else:
                 desc = key
-            self._tag.add(
-                    COMM(encoding=self.encoding, lang=self.lang,
+            self._tag[nkey] = COMM(encoding=self.encoding, lang=self.lang,
                         description=desc, text=value)
-                    )
 
     def __delitem__(self, key):
         del(self._tag[self._get_new_key(key)])
