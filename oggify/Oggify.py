@@ -1,5 +1,5 @@
 # oggify.Oggify - General Library for Oggify
-# Copyright (c) 2007 Scott Paul Robertson (spr@scottr.org)
+# Copyright (c) 2008 Scott Paul Robertson (spr@scottr.org)
 #
 # This is part of Oggify (http://scottr.org/oggify/)
 #

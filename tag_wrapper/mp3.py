@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Scott Paul Robertson (spr@scottr.org)
+# Copyright (c) 2008 Scott Paul Robertson (spr@scottr.org)
 #
 # tag_wrapper is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
