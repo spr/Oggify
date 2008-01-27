@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='Oggify',
-      version='2.0.0b1',
+      version='2.0.0b2',
       description='audio conversion tool for music library conversion',
       long_description="""Oggify provides the tools needed to convert an
       audio library from one format to another. Orginally designed to handle
