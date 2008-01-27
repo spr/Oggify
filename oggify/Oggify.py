@@ -191,8 +191,10 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
     if not os.path.exists(dir):
         os.makedirs(dir)
     decoder_process = decoder.decode(src_file, nice)
+    unlink = False
     if temp_file == None:
         temp_file = tempfile.mkstemp()[1]
+        unlink = True
     encoder_process = encoder.encode(temp_file, quality, nice,
             decoder_process.stdout, output)
     encoder_process.wait()
@@ -202,6 +204,8 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
                 and decoder_process.returncode != None)):
         raise OggifyError("Encode/decode process failure")
     shutil.copy(temp_file, dst_file)
+    if unlink:
+        os.unlink(temp_file)
     encoder.set_tags(dst_file, decoder.get_tags(src_file))
     if not verbose:
         output.close()

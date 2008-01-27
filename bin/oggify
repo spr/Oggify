@@ -156,6 +156,7 @@ def main(argv=sys.argv):
     if options.purge:
         for item in purge:
             Oggify.purge(item)
+    os.unlink(temp_file)
     return 0
 
 if __name__ == '__main__':
