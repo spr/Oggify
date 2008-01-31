@@ -35,10 +35,9 @@ lame_quality_conversion = [
             ['--preset', 'insane'],
         ]
 
-class Codec(plugins.Codec):
+class Codec(object):
 
     extension = property(lambda s: "mp3", doc="mp3")
-    type = property(lambda s: "output")
 
     def encode(self, file, quality, nice, input, stdout):
         actual = lame_quality_conversion[quality]

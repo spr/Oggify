@@ -21,10 +21,9 @@ from oggify import plugins
 from tag_wrapper import tag
 from subprocess import Popen, PIPE
 
-class Codec(plugins.Codec):
+class Codec(object):
 
     extension = property(lambda s: "flac", doc="flac")
-    type = property(lambda s: "input")
 
     def decode(self, file, nice):
         args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-d", "-c", file]

@@ -72,7 +72,7 @@ def _compare_dst_tree(root, src_ext, dst_ext, encode, dirs):
             else:
                 test = subdir
             if test not in dirs:
-                purge.append(os.path.join(current, subdir))
+                purge.append(os.path.join(current[2:], subdir))
                 subdirs.remove(subdir)
 
         for file in files:
@@ -80,24 +80,23 @@ def _compare_dst_tree(root, src_ext, dst_ext, encode, dirs):
                 '.'.join(file.split('.')[:-1] + [src_ext]))
             if src_eq in encode:
                 if not file.endswith(dst_ext):
-                    limited_purge.append(os.path.join(current, file))
+                    limited_purge.append(os.path.join(current[2:], file))
                 else:
                     reencode[src_eq] = encode[src_eq]
                     del encode[src_eq]
             else:
-                purge.append(os.path.join(current, file))
+                purge.append(os.path.join(current[2:], file))
     os.chdir(org_dir)
     return (encode, reencode, limited_purge, purge)
 
-def _adjust_filenames(src_dir, dst_dir, encode, reencode):
-    n_encode = {}
-    n_reencode = {}
-    for k,v in encode.items():
-        n_encode[os.path.join(src_dir, k)] = os.path.join(dst_dir, v)
-    for k,v in reencode.items():
-        n_reencode[os.path.join(src_dir, k)] = os.path.join(dst_dir, v)
-    return (n_encode, n_reencode)
+def _adjust_filenames(src_dir, dst_dir, files):
+    n_files = {}
+    for k,v in files.items():
+        n_files[os.path.join(src_dir, k)] = os.path.join(dst_dir, v)
+    return n_files
 
+def _adjust_list_filesnames(dir, files):
+    return [os.path.join(dir, f) for f in files]
 
 def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
     """Produce action structures for Oggify.
@@ -122,15 +121,18 @@ def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
             follow_symlinks)
     (encode, reencode, limited_purge, purge) =  _compare_dst_tree(dst_dir,
             src_ext, dst_ext, encode, src_dirs)
-    (encode, reencode) = _adjust_filenames(src_dir, dst_dir, encode, reencode)
+    encode = _adjust_filenames(src_dir, dst_dir, encode)
+    reencode = _adjust_filenames(src_dir, dst_dir, reencode)
+    purge = _adjust_list_filesnames(dst_dir, purge)
+    limited_purge = _adjust_list_filesnames(dst_dir, limited_purge)
     return (encode, reencode, limited_purge, purge)
 
-def list_plugins(type='both'):
+def list_plugins(type=None):
     """List the installed oggify plugins.
-        type - 'input' or 'output' or 'both'.
+        type - 'encode' or 'decode' or None.
 
     Returns a list of strings representing the installed oggify plugins
-    of type.
+    of type. (None returns all plugins)
     """
     from oggify import plugins
     plugin_dir = plugins.__path__[0]
@@ -141,29 +143,33 @@ def list_plugins(type='both'):
             plugin = filename.split('.')[0]
             mod = __import__('.'.join(('oggify', 'plugins', plugin)),
                     fromlist=[''])
-            codec = mod.Codec()
-            if codec.type == type or codec.type == 'both' or type == 'both':
+            if type == None or hasattr(mod.Codec, type):
                 plugins.append(plugin)
     return plugins
 
 def load_plugin(plugin, type):
     """Load an oggify plugin by string.
         plugin - string of the plugin
-        type - 'input' or 'output'
+        type - "encode" or "decode"
 
     Raises an OggifyError if the plugin requested does not support the type.
 
     Returns oggify.plugins.Codec object of the plugin.
     """
-    mod = __import__('.'.join(('oggify', 'plugins', plugin)),
-            fromlist=[''])
+    try:
+        mod = __import__('.'.join(('oggify', 'plugins', plugin)),
+                fromlist=[''])
+    except ImportError:
+        raise OggifyError("%s plugin does not exist" % plugin)
+
+    if not hasattr(mod.Codec, type):
+        raise OggifyError("%s is not a %s codec!" % (plugin, type))
+
     codec = mod.Codec()
-    if codec.type != type and codec.type != 'both':
-        raise OggifyError("%s is not a %s plugin!" % (plugin, type))
     return codec
 
 def process_file(decoder, encoder, src_file, dst_file, quality,
-        nice=10, verbose=0, temp_file=None):
+        nice=10, verbose=False, temp_file=None):
     """Encode a file using the correct source format file.
         decoder - oggify.plugins.Codec, type 'input'
         encoder - oggfiy.plugins.Codec, type 'output'
@@ -185,7 +191,6 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
         output = sys.stdout
     else:
         output = open(os.devnull, 'w')
-    print "Encoding %s to %s" % (src_file, dst_file)
 
     dir = os.path.dirname(dst_file)
     if not os.path.exists(dir):
@@ -210,9 +215,23 @@ def process_file(decoder, encoder, src_file, dst_file, quality,
     if not verbose:
         output.close()
 
-def purge(item):
-    print "Removing %s" % item
-    if os.path.isdir(item):
-        os.removedirs(item)
-    else:
-        os.unlink(item)
+def encode(decoder, encoder, files, options, temp_file=None,
+        cond=lambda x, y: True):
+    sorted = files.keys()
+    sorted.sort()
+    for src in sorted:
+        if cond(src, files[src]):
+            print "Encoding %s to %s" % (src, files[src])
+            process_file(decoder, encoder, src, files[src],
+                    options.quality, options.nice, options.verbose,
+                    temp_file)
+
+def purge(items, act=False):
+    if not act:
+        return
+    for item in items:
+        print "Removing %s" % item
+        if os.path.isdir(item):
+            os.removedirs(item)
+        else:
+            os.unlink(item)
