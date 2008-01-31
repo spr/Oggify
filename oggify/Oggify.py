@@ -95,7 +95,7 @@ def _adjust_filenames(src_dir, dst_dir, files):
         n_files[os.path.join(src_dir, k)] = os.path.join(dst_dir, v)
     return n_files
 
-def _adjust_list_filesnames(dir, files):
+def _adjust_list_filenames(dir, files):
     return [os.path.join(dir, f) for f in files]
 
 def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
@@ -123,8 +123,8 @@ def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
             src_ext, dst_ext, encode, src_dirs)
     encode = _adjust_filenames(src_dir, dst_dir, encode)
     reencode = _adjust_filenames(src_dir, dst_dir, reencode)
-    purge = _adjust_list_filesnames(dst_dir, purge)
-    limited_purge = _adjust_list_filesnames(dst_dir, limited_purge)
+    purge = _adjust_list_filenames(dst_dir, purge)
+    limited_purge = _adjust_list_filenames(dst_dir, limited_purge)
     return (encode, reencode, limited_purge, purge)
 
 def list_plugins(type=None):
