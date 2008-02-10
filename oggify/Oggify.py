@@ -31,9 +31,10 @@ class OggifyError(StandardError):
 
 def _process_walk(current, subdirs, files, encode, dirs, sym, src_ext, dst_ext):
     for subdir in subdirs:
-        dirs[os.path.join(current, subdir)] = None
-        if os.path.islink(subdir):
-            sym.append(subdir)
+        dir = os.path.join(current, subdir)
+        dirs[dir] = None
+        if os.path.islink(dir):
+            sym.append(dir)
     for file in files:
         if file.endswith(src_ext):
             src_fname = os.path.join(current, file)
