@@ -105,7 +105,7 @@ class ID3Tag(Tag):
                 desc = ''
             else:
                 desc = key
-            self._tag[nkey] = COMM(encoding=self.encoding, lang=self.lang,
+            self._tag[nkey] = id3.COMM(encoding=self.encoding, lang=self.lang,
                         description=desc, text=value)
 
     def __delitem__(self, key):
