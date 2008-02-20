@@ -1,4 +1,4 @@
-# oggify.Oggify - General Library for Oggify
+# oggify.utils - General Library for Oggify
 # Copyright (c) 2008 Scott Paul Robertson (spr@scottr.org)
 #
 # This is part of Oggify (http://scottr.org/oggify/)
@@ -17,13 +17,13 @@
 # along with Oggify; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-"""Functions for Oggify operation.
+"""Helper functions for Oggify.
 
-This module provides the external functions for using Oggify operations in
-your programs.
+This functions provide loading for plugins and producing the diff of the
+file trees for processing.
 """
 
-import os, os.path, sys, re, tempfile, shutil
+import os, os.path, sys, re
 
 class OggifyError(StandardError):
     """Runtime error for Oggify"""
@@ -168,71 +168,3 @@ def load_plugin(plugin, type):
 
     codec = mod.Codec()
     return codec
-
-def process_file(decoder, encoder, src_file, dst_file, quality,
-        nice=10, verbose=False, temp_file=None):
-    """Encode a file using the correct source format file.
-        decoder - oggify.plugins.Codec, type 'input'
-        encoder - oggfiy.plugins.Codec, type 'output'
-        src_file - string, source file (from oggify.Oggify.diff)
-        dst_file - string, destination file (from oggify.Oggify.diff)
-        quality - int, 0 - 10. Quality to use for encoding (see oggenc(1))
-        nice - int, -20 - 19. Nice value to use for processing.
-        verbose - boolean, Determines how much is printed to sys.stdout
-        temp_file - string, filename to use while encoding to handle 
-                    interrupts
-
-    Raises an OggifyError if the decode or encode process does not return
-    successfully.
-
-    This properly calls the Codec objects to take src_file to dst_file.
-    """
-
-    if verbose:
-        output = sys.stdout
-    else:
-        output = open(os.devnull, 'w')
-
-    dir = os.path.dirname(dst_file)
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    decoder_process = decoder.decode(src_file, nice)
-    unlink = False
-    if temp_file == None:
-        temp_file = tempfile.mkstemp()[1]
-        unlink = True
-    encoder_process = encoder.encode(temp_file, quality, nice,
-            decoder_process.stdout, output)
-    encoder_process.wait()
-    if ((encoder_process.returncode != 0 
-                and encoder_process.returncode != None)
-            or (decoder_process.returncode != 0
-                and decoder_process.returncode != None)):
-        raise OggifyError("Encode/decode process failure")
-    shutil.copy(temp_file, dst_file)
-    if unlink:
-        os.unlink(temp_file)
-    encoder.set_tags(dst_file, decoder.get_tags(src_file))
-    if not verbose:
-        output.close()
-
-def encode(decoder, encoder, files, options, temp_file=None,
-        cond=lambda x, y: True):
-    sorted = files.keys()
-    sorted.sort()
-    for src in sorted:
-        if cond(src, files[src]):
-            print "Encoding %s to %s" % (src, files[src])
-            process_file(decoder, encoder, src, files[src],
-                    options.quality, options.nice, options.verbose,
-                    temp_file)
-
-def purge(items, act=False):
-    if not act:
-        return
-    for item in items:
-        print "Removing %s" % item
-        if os.path.isdir(item):
-            os.removedirs(item)
-        else:
-            os.unlink(item)

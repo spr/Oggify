@@ -19,7 +19,7 @@
 # along with Oggify; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from oggify import Oggify, plugins
+from oggify import Oggify, utils, plugins
 from optparse import OptionParser
 from os import path
 import sys, os, tempfile, signal
@@ -68,10 +68,10 @@ def verify_options(options):
     if options.quality < 0 or options.quality > 10:
         print >>sys.stderr, "Quality %s is not between 0 and 10" % options.quality
         return False
-    if options.source_plugin not in Oggify.list_plugins('decode'):
+    if options.source_plugin not in utils.list_plugins('decode'):
         print >>sys.stderr, "%s not an input plugin" % options.source_plugin
         return False
-    if options.output_plugin not in Oggify.list_plugins('encode'):
+    if options.output_plugin not in utils.list_plugins('encode'):
         print >>sys.stderr, "%s not an output plugin" % options.output_plugin
         return False
     if options.nice < -20 or options.nice > 19:
@@ -88,29 +88,11 @@ def verify_args(args):
         return False
     return True
 
-def pretend(encode, reencode, limited_purge, purge, options):
-    encode_keys = encode.keys()
-    encode_keys.sort()
-    for src in encode_keys:
-        print "Encoding %s to %s" % (src, encode[src])
-    if options.refresh:
-        reencode_keys = reencode.keys()
-        reencode_keys.sort()
-        for src in reencode_keys:
-            if path.getmtime(src) > path.getmtime(reencode[src]):
-                print "Reencoding %s to %s" % (src, reencode[src])
-    if options.clean or options.purge:
-        for item in limited_purge:
-            print "Removing %s" % item
-    if options.purge:
-        for item in purge:
-            print "Removing %s" % item
-
 def main(argv=sys.argv):
     usage = "%prog [options] <src> <dest>"
     desc = """Input Plugins: %s Output Plugins: %s
-    """ % (Oggify.list_plugins('decode'), Oggify.list_plugins('encode'))
-    version = "%prog 2.0.0b1"
+    """ % (utils.list_plugins('decode'), utils.list_plugins('encode'))
+    version = "%prog 2.0.0b5"
     parser = OptionParser(usage=usage, description=desc, version=version)
     setup_parser(parser)
 
@@ -123,24 +105,17 @@ def main(argv=sys.argv):
         parser.print_help()
         return -1
 
-    decoder = Oggify.load_plugin(options.source_plugin, 'decode')
-    encoder = Oggify.load_plugin(options.output_plugin, 'encode')
+    oggify = Oggify(args[0], args[1], options, temp_file)
 
-    encode, reencode, limited_purge, purge = Oggify.diff(args[0], args[1],
-            decoder.extension, encoder.extension, options.follow_symlinks)
-
-    if options.pretend:
-        pretend(encode, reencode, limited_purge, purge, options)
-        return 0
-
-    Oggify.encode(decoder, encoder, encode, options, temp_file)
+    oggify.encode(not options.pretend)
 
     if options.refresh:
-        Oggify.encode(decoder, encoder, reencode, options, temp_file,
-                lambda src, dst: path.getmtime(src) > path.getmtime(dst))
+        oggify.reencode(not options.pretend)
 
-    Oggify.purge(limited_purge, options.clean or options.purge)
-    Oggify.purge(purge, options.purge)
+    if options.clean or options.purge:
+        oggify.clean(not options.pretend)
+    if options.purge:
+        oggify.purge(not options.pretend)
 
     os.unlink(temp_file)
     return 0
