@@ -22,6 +22,15 @@ from tag_wrapper import tag
 from subprocess import Popen, STDOUT
 
 class Codec(object):
+    """Oggify Ogg Vorbis Output Plugin. (default)
+This plugin encodes files into the Ogg Vorbis format (.ogg) and writes the
+correct vorbis tags.
+
+Quality:
+    Follows with the oggenc(1) -q option. Only integer values between 0 and 10
+    are premitted, unlike oggenc(1).
+
+Requires "oggenc" to be in $PATH. http://xiph.org"""
 
     extension = property(lambda s: "ogg", doc="ogg")
 

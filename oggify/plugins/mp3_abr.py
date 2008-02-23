@@ -22,7 +22,7 @@ from tag_wrapper import tag
 from subprocess import Popen, STDOUT
 
 lame_quality_conversion = [
-            ['--preset', '64'],
+            ['--abr', '56', '-mm'],
             ['--preset', '64'],
             ['--preset', '96'],
             ['--preset', '128'],
@@ -36,6 +36,25 @@ lame_quality_conversion = [
         ]
 
 class Codec(object):
+    """Oggify MP3 Output Plugin, ABR encoding.
+This plugin encodes files as MP3's using ABR encoding and writes the corrent ID3v2.4 and ID3v1.1 tags.
+
+Quality:
+    Quality relates to lame(1) options, as follows:
+    ------------------------------
+    | value |   lame(1) option   |
+    |   0   |  --abr 56 -mm      | (mono, voice only)
+    |   1   |  --preset 64       |
+    |   2   |  --preset 96       |
+    |   3   |  --preset 128      |
+    |   4   |  --preset 160      |
+    |   5   |  --preset 192      |
+    |   6   |  --preset 256      |
+    |  7-9  |  --preset 320      |
+    |  10   |  --preset insane   |
+    ------------------------------
+
+Requires "lame" to be in $PATH. http://lame.sf.net"""
 
     extension = property(lambda s: "mp3", doc="mp3")
 

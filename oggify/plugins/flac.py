@@ -22,6 +22,11 @@ from tag_wrapper import tag
 from subprocess import Popen, PIPE
 
 class Codec(object):
+    """Oggify FLAC Source Plugin. (default)
+Using this plugin will scan the source directory tree for files ending in
+.flac.  These files are then converted to the specified output format.
+
+Requires "flac" to be on you $PATH. http://flac.sf.net"""
 
     extension = property(lambda s: "flac", doc="flac")
 
