@@ -126,3 +126,7 @@ class ID3Tag(Tag):
                 else:
                     keys.append(s)
         return keys
+
+    def save(self):
+        """Saves tag (ID3v2.4 and ID3v1.1) to disk."""
+        self._tag.save(v1=2)
