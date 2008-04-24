@@ -112,7 +112,7 @@ def verify_args(args):
 def main(argv=sys.argv):
     usage = "%prog [options] <src> <dest>"
     plugins = """Input Plugins: %s Output Plugins: %s""" % (utils.list_plugins('decode'), utils.list_plugins('encode'))
-    version = "%prog 2.0.0b5"
+    version = "%prog 2.0.0rc1"
     parser = OptionParser(usage=usage, epilog=plugins, version=version,
             add_help_option=False)
     setup_parser(parser)
