@@ -69,11 +69,11 @@ def _compare_dst_tree(root, src_ext, dst_ext, encode, dirs):
     for current, subdirs, files in os.walk('.'):
         for subdir in subdirs:
             if current != '.':
-                test = '/'.join((current[2:], subdir))
+                test = os.path.join(current[2:], subdir)
             else:
                 test = subdir
             if test not in dirs:
-                purge.append(os.path.join(current[2:], subdir))
+                purge.append(test)
                 subdirs.remove(subdir)
 
         for file in files:
@@ -125,7 +125,9 @@ def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
     encode = _adjust_filenames(src_dir, dst_dir, encode)
     reencode = _adjust_filenames(src_dir, dst_dir, reencode)
     purge = _adjust_list_filenames(dst_dir, purge)
+    purge.sort(reverse=True)
     limited_purge = _adjust_list_filenames(dst_dir, limited_purge)
+    limited_purge.sort(reverse=True)
     return (encode, reencode, limited_purge, purge)
 
 def list_plugins(type=None):
@@ -140,7 +142,9 @@ def list_plugins(type=None):
     contents = os.listdir(plugin_dir)
     plugins = []
     for filename in contents:
-        if re.search(r'\.py$', filename) and filename != '__init__.py':
+        if (re.search(r'\.py$', filename)
+            and (filename != '__init__.py'
+                    and not re.match(r'^test', filename))):
             plugin = filename.split('.')[0]
             mod = __import__('.'.join(('oggify', 'plugins', plugin)),
                     fromlist=[''])

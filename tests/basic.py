@@ -1,4 +1,4 @@
-import random, os, re
+import random, os, re, sys
 from os import path
 from oggify import Oggify
 import unittest
@@ -60,7 +60,7 @@ def create_dst_list(src, ext='ogg'):
 def make_files(files):
     for f in files:
         dir = path.dirname(f)
-        if not os.path.exists(dir):
+        if not path.exists(dir):
             os.makedirs(dir)
         open(f, "w").close()
 
@@ -73,6 +73,19 @@ def del_files(files):
                 os.removedirs(dir)
             except OSError:
                 pass
+        else:
+            dir = path.dirname(f)
+            try:
+                os.removedirs(dir)
+            except OSError:
+                pass
+
+def check_files(files):
+    ret = []
+    for f in files:
+        if path.exists(f):
+            ret.append(f)
+    return ret
 
 class AttrHash(object):
     def __init__(self, hash):
@@ -93,8 +106,8 @@ class TestOggifyFunctions(unittest.TestCase):
                 'nice': 10,
                 'quality': 5,
                 'follow_symlinks': False,
-                'source_plugin': 'flac',
-                'output_plugin': 'ogg',
+                'source_plugin': 'testflac',
+                'output_plugin': 'testogg',
             })
         make_files(self.src)
 
@@ -124,6 +137,7 @@ class TestOggifyFunctions(unittest.TestCase):
 
         add_src.sort()
         add_dst = create_dst_list(add_src)
+        self.dst += add_dst
         add_dst.sort()
 
         oggify = Oggify(self.src_dir, self.dst_dir, self.options, '/dev/null')
@@ -148,9 +162,10 @@ class TestOggifyFunctions(unittest.TestCase):
         self.assertEqual(rev, self.dst)
     
     def testpurge(self):
-        """Validate how purge works"""
+        """Validate that purge gets the correct files"""
         purge = ['/tmp/oggifytest/ogg/bob.ogg',
             '/tmp/oggifytest/ogg/somedirectories']
+        purge.sort(reverse=True)
         self.dst += purge
         make_files(purge)
 
@@ -159,7 +174,7 @@ class TestOggifyFunctions(unittest.TestCase):
         self.assertEqual(oggify._purge, purge)
 
     def testclean(self):
-        """Validate that clean works as expected"""
+        """Validate that clean gets the correct files"""
         clean = [ re.sub(r'mp3', 'ogg', f, count=1)
                 for f in create_dst_list(add_src, 'mp3') ]
         self.src += add_src
@@ -173,6 +188,79 @@ class TestOggifyFunctions(unittest.TestCase):
         ca.sort()
 
         self.assertEqual(ca, clean)
+        self.dst += create_dst_list(add_src)
+
+    def testfullencode(self):
+        """Validate that encode works correctly"""
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        sev = oggify._encode.values()
+        sev.sort()
+
+        oggify.encode()
+        self.assertEqual(sev, check_files(self.dst))
+
+    def testfullnewfileencode(self):
+        """Validate that increment encode works correctly"""
+        self.src += add_src
+        make_files(add_src)
+        make_files(self.dst)
+
+        add_src.sort()
+        add_dst = create_dst_list(add_src)
+        self.dst += add_dst
+        add_dst.sort()
+
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        sev = oggify._encode.values()
+        sev.sort()
+
+        oggify.encode()
+        self.assertEqual(sev, check_files(add_dst))
+
+    def testfullreencode(self):
+        """Validate that reencode works correctly"""
+        make_files(self.dst)
+
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        rev = oggify._reencode.values()
+        rev.sort()
+
+        oggify.reencode()
+        self.assertEqual(rev, check_files(self.dst))
+
+    def testfullpurge(self):
+        """Validate that purge removes the correct files"""
+        purge = ['/tmp/oggifytest/ogg/bob.ogg',
+            '/tmp/oggifytest/ogg/somedirectories']
+        self.dst += purge
+        make_files(self.dst)
+
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+
+        oggify.purge()
+        self.assertNotEqual(self.dst, check_files(self.dst))
+        clean_dst = create_dst_list(first_src)
+        self.assertEqual(clean_dst, check_files(clean_dst))
+
+    def testfullclean(self):
+        """Validate that clean removes the correct files"""
+        clean = [ re.sub(r'mp3', 'ogg', f, count=1)
+                for f in create_dst_list(add_src, 'mp3') ]
+        self.src += add_src
+        make_files(add_src)
+        self.dst += clean
+        clean.sort()
+        make_files(self.dst)
+
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        ca = oggify._limited_purge
+        ca.sort()
+
+        oggify.clean()
+        self.assertNotEqual(self.dst, check_files(self.dst))
+        clean_dst = create_dst_list(first_src)
+        self.assertEqual(clean_dst, check_files(clean_dst))
 
 if __name__ == '__main__':
+    sys.stdout = open('/dev/null')
     unittest.main()

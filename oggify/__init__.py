@@ -107,6 +107,7 @@ class Oggify(object):
             print "Removing %s" % item
             if act:
                 if os.path.isdir(item):
+                    # TODO: Skip if directory not empty
                     os.removedirs(item)
                 else:
                     os.unlink(item)
