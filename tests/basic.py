@@ -1,4 +1,4 @@
-import random, os, re, sys
+import random, os, re, sys, time
 from os import path
 from oggify import Oggify
 import unittest
@@ -87,12 +87,24 @@ def check_files(files):
             ret.append(f)
     return ret
 
+def compare_timestamps(left, right, mode):
+    if mode == '<':
+        expected_result = -1
+    elif mode == '==':
+        expected_result = 0
+    else:
+        expected_result = 1
+    for l,r in zip(left, right):
+        if cmp(path.getmtime(l), path.getmtime(r)) != expected_result:
+            return False
+    return True
+
 class AttrHash(object):
     def __init__(self, hash):
         for k,v in hash.items():
             setattr(self, k, v)
 
-class TestOggifyFunctions(unittest.TestCase):
+class TestOggifyInternals(unittest.TestCase):
 
     def setUp(self):
         self.src = list(first_src)
@@ -190,7 +202,32 @@ class TestOggifyFunctions(unittest.TestCase):
         self.assertEqual(ca, clean)
         self.dst += create_dst_list(add_src)
 
-    def testfullencode(self):
+class TestOggifyFunctions(unittest.TestCase):
+
+    def setUp(self):
+        self.src = list(first_src)
+        self.dst = create_dst_list(first_src)
+        self.src.sort()
+        self.dst.sort()
+        self.src_dir = "/tmp/oggifytest/flac"
+        self.dst_dir = "/tmp/oggifytest/ogg"
+        self.options = AttrHash({
+                'verbose': False,
+                'nice': 10,
+                'quality': 5,
+                'follow_symlinks': False,
+                'source_plugin': 'testflac',
+                'output_plugin': 'testogg',
+            })
+        make_files(self.src)
+
+    def tearDown(self):
+        del_files(self.src)
+        del_files(self.dst)
+        self.src = None
+        self.dst = None
+
+    def testencode(self):
         """Validate that encode works correctly"""
         oggify = Oggify(self.src_dir, self.dst_dir, self.options)
         sev = oggify._encode.values()
@@ -199,7 +236,7 @@ class TestOggifyFunctions(unittest.TestCase):
         oggify.encode()
         self.assertEqual(sev, check_files(self.dst))
 
-    def testfullnewfileencode(self):
+    def testnewfileencode(self):
         """Validate that increment encode works correctly"""
         self.src += add_src
         make_files(add_src)
@@ -217,18 +254,33 @@ class TestOggifyFunctions(unittest.TestCase):
         oggify.encode()
         self.assertEqual(sev, check_files(add_dst))
 
-    def testfullreencode(self):
+    def testreencode(self):
         """Validate that reencode works correctly"""
         make_files(self.dst)
+        time.sleep(1)
+        make_files(self.src)
+        self.assertTrue(compare_timestamps(self.src, self.dst, '>'))
+        time.sleep(1)
 
         oggify = Oggify(self.src_dir, self.dst_dir, self.options)
-        rev = oggify._reencode.values()
-        rev.sort()
 
         oggify.reencode()
-        self.assertEqual(rev, check_files(self.dst))
+        self.assertTrue(compare_timestamps(self.src, self.dst, '<'))
 
-    def testfullpurge(self):
+    def testretag(self):
+        """Validate that retag runs works correctly"""
+        make_files(self.dst)
+        time.sleep(1)
+        make_files(self.src)
+        self.assertTrue(compare_timestamps(self.src, self.dst, '>'))
+        time.sleep(1)
+
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+
+        oggify.retag()
+        self.assertTrue(compare_timestamps(self.src, self.dst, '<'))
+
+    def testpurge(self):
         """Validate that purge removes the correct files"""
         purge = ['/tmp/oggifytest/ogg/bob.ogg',
             '/tmp/oggifytest/ogg/somedirectories']
@@ -242,7 +294,7 @@ class TestOggifyFunctions(unittest.TestCase):
         clean_dst = create_dst_list(first_src)
         self.assertEqual(clean_dst, check_files(clean_dst))
 
-    def testfullclean(self):
+    def testclean(self):
         """Validate that clean removes the correct files"""
         clean = [ re.sub(r'mp3', 'ogg', f, count=1)
                 for f in create_dst_list(add_src, 'mp3') ]

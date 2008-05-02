@@ -81,6 +81,9 @@ def setup_parser(parser):
     parser.add_option("-r", "--refresh", action="store_true", dest="refresh",
             help="Re-encode files that are older than the source file")
     parser.set_defaults(refresh=False)
+    parser.add_option("-t", "--retag", action="store_true", dest="retag",
+            help="Retag files that are older than the source file")
+    parser.set_defaults(retag=False)
     parser.add_option("-c", "--clean", action="store_true", dest="clean",
             help="Remove files that are encoded in the incorrect format")
     parser.set_defaults(clean=False)
@@ -97,6 +100,9 @@ def verify_options(options):
         return False
     if options.nice < -20 or options.nice > 19:
         print >>sys.stderr, "Nice value %s not between -20 and 18" % options.nice
+        return False
+    if options.retag and options.refresh:
+        print >>sys.stderr, "--retag and --refresh are mutually exclusive"
         return False
     return True
 
@@ -132,6 +138,8 @@ def main(argv=sys.argv):
 
     if options.refresh:
         oggify.reencode(not options.pretend)
+    if options.retag:
+        oggify.retag(not options.pretend)
 
     if options.clean or options.purge:
         oggify.clean(not options.pretend)

@@ -87,7 +87,6 @@ class Oggify(object):
         """Encodes all detected files needing encoding"""
         for src in self._encode_k:
             dst = self._encode[src]
-            del self._encode[src]
             print "Encoding %s to %s" % (src, dst)
             if act:
                 self.encode_file(src, dst)
@@ -96,11 +95,19 @@ class Oggify(object):
         """Encodes all detected files needing re-encoding"""
         for src in self._reencode_k:
             dst = self._reencode[src]
-            del self._reencode[src]
             if os.path.getmtime(src) > os.path.getmtime(dst):
                 print "Re-encoding %s to %s" % (src, dst)
                 if act:
                     self.encode_file(src, dst)
+
+    def retag(self, act=True):
+        """Retag all detected files needing retagging"""
+        for src in self._reencode_k:
+            dst = self._reencode[src]
+            if os.path.getmtime(src) > os.path.getmtime(dst):
+                print "Retagging %s with %s" % (dst, src)
+                if act:
+                    self._encoder.set_tags(dst, self._decoder.get_tags(src))
 
     def _rm_list(self, items, act):
         for item in items:

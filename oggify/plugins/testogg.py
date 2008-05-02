@@ -11,4 +11,4 @@ class Codec(object):
     def encode(self, file, quality, nice, input, stdout):
         return FakeSP(file)
     def set_tags(self, file, tags):
-        pass
+        open(file, "w").close()
