@@ -1,0 +1,158 @@
+.TH oggify 1 "May 08, 2008" "" "Oggify"
+.SH NAME
+oggify \(em convert audio to different formats, preserving organization
+
+.SH SYNOPSIS
+.B oggify
+[
+.B options
+]
+.I source_directory
+.I destination_directory
+
+.SH DESCRIPTION
+.PP
+.B oggify
+is a program which assists in the conversion of audio collections to different formats. It takes a directory containing audio files of a given format and produces a directory with the same structure as the original, but with the audio files in a different output format. It is geared toward be able to keep up-to-date replicas of a collection.
+
+.SH OPTIONS
+.TP
+.BI \-s " plugin"
+.PD 0
+.TP
+.BI \-\-source " plugin"
+Use
+.I plugin
+as the source audio format. Default is "flac".
+
+.TP
+.BI \-o " plugin
+.PD 0
+.TP
+.BI \-\-output " plugin"
+Use 
+.I plugin
+as the output audio format. Default is "ogg".
+
+.TP
+.BI \-q " n"
+.PD 0
+.TP
+.BI \-\-quality " n"
+Set the output format quality to
+.I n.
+Default is 5.
+
+.TP
+.BI \-L
+.PD 0
+.TP
+.BI \-\-follow-symlinks
+Have OGGIFY follow symbolic links in the source directory tree.
+
+.TP
+.BI \-p
+.PD 0
+.TP
+.BI \-\-pretend
+Only print what OGGIFY will do, perform no action.
+
+.TP
+.BI \-r
+.PD 0
+.TP
+.BI \-\-refresh
+Re-encode files when the source file is newer than the output file.
+
+.TP
+.BI \-t
+.PD 0
+.TP
+.BI \-\-retag
+Reapply audio tags (Vorbis Comments, ID3, etc) on output files when the source file is newer.
+
+.TP
+.BI \-c
+.PD 0
+.TP
+.BI \-\-clean
+Remove output files that are encoded in a format different than the one specified. If you've previously ran with the output set to "ogg" and then run with the output set to "mp3" and use this option, all of the Ogg Vorbis files will be deleted.
+
+.TP
+.BI \-P
+.PD 0
+.TP
+.BI \-\-purge
+Remove files in the destination that do not exist in the source. Directories will only be removed if empty.
+
+.TP
+.BI \-n " n"
+.PD 0
+.TP
+.BI \-\-nice " n"
+.BR nice (1)
+the OGGIFY processes to 
+.I n.
+Default is 10.
+
+.TP
+.BI \-v
+.PD 0
+.TP
+.BI \-\-verbose
+Print out additional information about the actions being performed.
+
+.TP
+.BI "\-h [" plugin ]
+.PD 0
+.TP
+.BI "\-\-help [" plugin ]
+Display the standard help message and exit. If you specify 
+.I plugin
+, display the help for that plugin.
+
+.TP
+.BI \-\-version
+Display the version and exit.
+
+.SH EXAMPLES
+
+Basic use. Find all flac files in one directory tree and create ogg files in a similar directory tree:
+.RS
+oggify flacs oggs
+.RE
+.PP
+
+Encode out to mp3:
+.RS
+oggify -o mp3 flacs mp3s
+.RE
+.PP
+
+Encode at a higher quality, and do not nice:
+.RS
+oggify -q 8 -n 0 flacs oggs
+.RE
+.PP
+
+Encode new files, and re-encode files that have been modified more recently in the source. Remove files that are in the source, but in the wrong output format.
+.RS
+oggify -o mp3 -c -r flacs mp3s
+.RE
+.PP
+
+Encode and remove all files that do not exist in the source:
+.RS
+oggify -P flacs oggs
+.RE
+.PP
+
+.SH AUTHORS
+.nf
+Scott Paul Robertson <spr@scottr.org>
+http://scottr.org/oggify/
+
+.SH SEE ALSO
+.BR flac (1),
+.BR oggenc (1),
+.BR lame (1)
