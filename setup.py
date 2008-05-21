@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name='Oggify',
+setup(name='oggify',
       version='2.0.0rc2',
       description='audio conversion tool for music library conversion',
       long_description="""Oggify provides the tools needed to convert an
@@ -14,6 +14,7 @@ setup(name='Oggify',
       author='Scott Paul Robertson',
       author_email='spr@scottr.org',
       url='http://scottr.org/oggify/',
+      License='GPLv2',
       packages=['oggify', 'oggify.plugins', 'tag_wrapper'],
       requires=['mutagen'],
       provides=['tag_wrapper', 'oggify'],
