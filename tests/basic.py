@@ -314,5 +314,5 @@ class TestOggifyFunctions(unittest.TestCase):
         self.assertEqual(clean_dst, check_files(clean_dst))
 
 if __name__ == '__main__':
-    sys.stdout = open('/dev/null')
+    sys.stdout = open('/dev/null', 'w+')
     unittest.main()
