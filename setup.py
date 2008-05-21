@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name='Oggify',
+setup(name='oggify',
       version='2.0.0rc2',
       description='audio conversion tool for music library conversion',
       long_description="""Oggify provides the tools needed to convert an
