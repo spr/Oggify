@@ -19,6 +19,7 @@ setup(name='oggify',
       requires=['mutagen'],
       provides=['tag_wrapper', 'oggify'],
       scripts=['bin/oggify'],
+      data_files=[('man/man1', ['man/man1/oggify.1'])],
       license="GNU GPLv2 or later",
       platforms=['linux', 'Apple OS X'],
       classifiers=[
