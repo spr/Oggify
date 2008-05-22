@@ -19,7 +19,7 @@
 # along with Oggify; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from oggify import Oggify, utils
+from oggify import Oggify, utils, version
 from optparse import OptionParser
 from os import path
 import sys, os, tempfile, signal
@@ -118,8 +118,8 @@ def verify_args(args):
 def main(argv=sys.argv):
     usage = "%prog [options] <src> <dest>"
     plugins = """Input Plugins: %s Output Plugins: %s""" % (utils.list_plugins('decode'), utils.list_plugins('encode'))
-    version = "%prog 2.0.0rc1"
-    parser = OptionParser(usage=usage, epilog=plugins, version=version,
+    version_str = "%prog " + version
+    parser = OptionParser(usage=usage, epilog=plugins, version=version_str,
             add_help_option=False)
     setup_parser(parser)
 

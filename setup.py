@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+from oggify import version
 
 setup(name='oggify',
-      version='2.0.0rc2',
+      version=version,
       description='audio conversion tool for music library conversion',
       long_description="""Oggify provides the tools needed to convert an
       audio library from one format to another. Orginally designed to handle
@@ -18,10 +19,12 @@ setup(name='oggify',
       requires=['mutagen'],
       provides=['tag_wrapper', 'oggify'],
       scripts=['bin/oggify'],
+      license="GNU GPLv2 or later",
+      platforms=['linux', 'Apple OS X'],
       classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',
-          'Intended Audience :: Advanced End Users',
+          'Intended Audience :: End Users/Desktop',
           'License :: OSI Approved :: GNU General Public License (GPL)',
           'Operating System :: MacOS :: MacOS X',
           'Operating System :: POSIX :: Linux',
