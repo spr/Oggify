@@ -1,1 +1,4 @@
 recursive-include man *
+include COPYING
+include INSTALL
+include README
