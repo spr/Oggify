@@ -13,7 +13,7 @@ oggify \(em convert audio to different formats, preserving organization
 .SH DESCRIPTION
 .PP
 .B oggify
-is a program which assists in the conversion of audio collections to different formats. It takes a directory containing audio files of a given format and produces a directory with the same structure as the original, but with the audio files in a different output format. It is geared toward be able to keep up-to-date replicas of a collection.
+is a program which assists in the conversion of audio collections to different formats. It takes a directory containing audio files of a given format and produces a directory with the same structure as the original but with the audio files re-encoded in a different format. It is intended to make it easy to keep up-to-date replicas of a collection.
 
 .SH OPTIONS
 .TP
@@ -114,6 +114,27 @@ Display the standard help message and exit. If you specify
 .TP
 .BI \-\-version
 Display the version and exit.
+
+.SH DETAILED USE CASE
+.PP
+We assume that the user has a well organized directory of lossless audio files in the FLAC format. The user needs to convert all of these to MP3 and wants to preserve the organization and tags. By running
+.B oggify
+the user now has the directory with MP3's as desired. (oggify -o mp3)
+
+.PP
+Later the user has added new files to their collection and by running
+.B oggify
+again the MP3 directory is updated with the new files, but no old ones are re-encoded.
+
+.PP
+If certain tags in the source directory are updated, the user can pass those changes on to the MP3's by running
+.B oggify
+with the re-tagging option. (-t --retag)
+
+.PP
+If a bad rip occurred the updated files can be re-encoded by running
+.B oggify
+with the refresh option. (-r --refresh)
 
 .SH EXAMPLES
 
