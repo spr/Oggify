@@ -41,8 +41,6 @@ class Oggify(object):
         self._nice = options.nice
         self._quality = options.quality
         self._symlinks = options.follow_symlinks
-        #self._decoder = utils.load_plugin(options.source_plugin, 'decode')
-        #self._encoder = utils.load_plugin(options.output_plugin, 'encode')
         self._decoder = decoder
         self._encoder = encoder
 
