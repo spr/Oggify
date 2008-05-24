@@ -2,6 +2,7 @@ import random, os, re, sys, time
 from os import path
 from oggify import Oggify
 import unittest
+import testflac, testogg
 
 first_src = [
         '/tmp/oggifytest/flac/Guster/Parachute/01 Fall In Two.flac',
@@ -113,13 +114,13 @@ class TestOggifyInternals(unittest.TestCase):
         self.dst.sort()
         self.src_dir = "/tmp/oggifytest/flac"
         self.dst_dir = "/tmp/oggifytest/ogg"
+        self.decoder = testflac.Codec()
+        self.encoder = testogg.Codec()
         self.options = AttrHash({
                 'verbose': False,
                 'nice': 10,
                 'quality': 5,
                 'follow_symlinks': False,
-                'source_plugin': 'testflac',
-                'output_plugin': 'testogg',
             })
         make_files(self.src)
 
@@ -131,7 +132,8 @@ class TestOggifyInternals(unittest.TestCase):
 
     def testencode(self):
         """Validate that on a new dst tree, only encode is present"""
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options, '/dev/null')
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options, 
+                self.decoder, self.encoder, '/dev/null')
         sev = oggify._encode.values()
         sev.sort()
 
@@ -152,7 +154,8 @@ class TestOggifyInternals(unittest.TestCase):
         self.dst += add_dst
         add_dst.sort()
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options, '/dev/null')
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder, '/dev/null')
         sev = oggify._encode.values()
         sev.sort()
 
@@ -166,7 +169,8 @@ class TestOggifyInternals(unittest.TestCase):
         """Validate that existing files in dst are put in reencode"""
         make_files(self.dst)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options, '/dev/null')
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder, '/dev/null')
         rev = oggify._reencode.values()
         rev.sort()
 
@@ -181,7 +185,8 @@ class TestOggifyInternals(unittest.TestCase):
         self.dst += purge
         make_files(purge)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options, '/dev/null')
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder, '/dev/null')
 
         self.assertEqual(oggify._purge, purge)
 
@@ -195,7 +200,8 @@ class TestOggifyInternals(unittest.TestCase):
         clean.sort()
         make_files(self.dst)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options, '/dev/null')
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder, '/dev/null')
         ca = oggify._limited_purge
         ca.sort()
 
@@ -211,13 +217,13 @@ class TestOggifyFunctions(unittest.TestCase):
         self.dst.sort()
         self.src_dir = "/tmp/oggifytest/flac"
         self.dst_dir = "/tmp/oggifytest/ogg"
+        self.decoder = testflac.Codec()
+        self.encoder = testogg.Codec()
         self.options = AttrHash({
                 'verbose': False,
                 'nice': 10,
                 'quality': 5,
                 'follow_symlinks': False,
-                'source_plugin': 'testflac',
-                'output_plugin': 'testogg',
             })
         make_files(self.src)
 
@@ -229,7 +235,8 @@ class TestOggifyFunctions(unittest.TestCase):
 
     def testencode(self):
         """Validate that encode works correctly"""
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder)
         sev = oggify._encode.values()
         sev.sort()
 
@@ -247,7 +254,8 @@ class TestOggifyFunctions(unittest.TestCase):
         self.dst += add_dst
         add_dst.sort()
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder)
         sev = oggify._encode.values()
         sev.sort()
 
@@ -262,7 +270,8 @@ class TestOggifyFunctions(unittest.TestCase):
         self.assertTrue(compare_timestamps(self.src, self.dst, '>'))
         time.sleep(1)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder)
 
         oggify.reencode()
         self.assertTrue(compare_timestamps(self.src, self.dst, '<'))
@@ -275,7 +284,8 @@ class TestOggifyFunctions(unittest.TestCase):
         self.assertTrue(compare_timestamps(self.src, self.dst, '>'))
         time.sleep(1)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder)
 
         oggify.retag()
         self.assertTrue(compare_timestamps(self.src, self.dst, '<'))
@@ -287,7 +297,8 @@ class TestOggifyFunctions(unittest.TestCase):
         self.dst += purge
         make_files(self.dst)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder)
 
         oggify.purge()
         self.assertNotEqual(self.dst, check_files(self.dst))
@@ -304,7 +315,8 @@ class TestOggifyFunctions(unittest.TestCase):
         clean.sort()
         make_files(self.dst)
 
-        oggify = Oggify(self.src_dir, self.dst_dir, self.options)
+        oggify = Oggify(self.src_dir, self.dst_dir, self.options,
+                self.decoder, self.encoder)
         ca = oggify._limited_purge
         ca.sort()
 

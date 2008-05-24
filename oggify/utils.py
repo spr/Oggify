@@ -143,11 +143,10 @@ def list_plugins(type=None):
     plugins = []
     for filename in contents:
         if (re.search(r'\.py$', filename)
-            and (filename != '__init__.py'
-                    and not re.match(r'^test', filename))):
+            and (filename != '__init__.py')):
             plugin = filename.split('.')[0]
             mod = __import__('.'.join(('oggify', 'plugins', plugin)),
-                    fromlist=[''])
+                    {}, {}, [''])
             if type == None or hasattr(mod.Codec, type):
                 plugins.append(plugin)
     return plugins
@@ -163,7 +162,7 @@ def load_plugin(plugin, type):
     """
     try:
         mod = __import__('.'.join(('oggify', 'plugins', plugin)),
-                fromlist=[''])
+                {}, {}, [''])
     except ImportError:
         raise OggifyError("%s plugin does not exist" % plugin)
 

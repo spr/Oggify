@@ -132,7 +132,9 @@ def main(argv=sys.argv):
         parser.print_help()
         return -1
 
-    oggify = Oggify(args[0], args[1], options, temp_file)
+    decoder = utils.load_plugin(options.source_plugin, 'decode')
+    encoder = utils.load_plugin(options.output_plugin, 'encode')
+    oggify = Oggify(args[0], args[1], options, decoder, encoder, temp_file)
 
     oggify.encode(not options.pretend)
 
