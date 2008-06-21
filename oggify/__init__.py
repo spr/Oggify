@@ -26,17 +26,23 @@ class Oggify(object):
     """Class for the oggify object that does all the work for Oggify"""
 
     def __init__(self, src, dst, options, decoder, encoder, temp_file=None):
-        """Created as Oggify(src, dst, options)
-        src is the directory of source files
-        dst is the directory for output
-        options is an object that has the following attributes:
-            options.verbose - boolean
-            options.nice - int, see nice(1)
-            options.quality - int, 0-10
-            options.follow_symlinks - boolean
-            options.source_plugin - string, matching an oggify.plugins
-            options.output_plugin - string, matching an oggify.plugins
-        temp_file is the file that will be written to during encoding
+        """Constructor.
+
+        Keyword arguments:
+        src -- the root of the directory tree containing the source files
+        dst -- the directory root of the tree that will contain the output files
+        options -- an object with the following attributes:
+            verbose -- boolean
+            nice -- int, see nice(1)
+            quality -- int, 0 - 10
+            follow_symlinks -- boolean
+        decoder -- class like oggify.plugins.Codec that handles the source files
+        encoder -- class like oggify.plugins.Codec that handles the output files
+        temp_file -- file that will be written to during encoding. If passed the
+            caller is expected to delete it when finished.
+
+        The constructor calls oggify.utils.diff to fill datastructures with the
+        needed information to perform requested actions.
         """
         self._nice = options.nice
         self._quality = options.quality
@@ -67,7 +73,7 @@ class Oggify(object):
         self._reencode_k.sort()
 
     def encode_file(self, src, dst):
-        """Encodes src to dst using the proper decoder and encoder"""
+        """Encodes src to dst using the class's decoder and encoder."""
         dir = os.path.dirname(dst)
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -86,7 +92,11 @@ class Oggify(object):
         self._encoder.set_tags(dst, self._decoder.get_tags(src))
 
     def encode(self, act=True):
-        """Encodes all detected files needing encoding"""
+        """Encode all files detected that qualify.
+        
+        Encodes all files that only exist in the source tree to
+        the destination tree.
+        """
         for src in self._encode_k:
             dst = self._encode[src]
             print "Encoding %s to %s" % (src, dst)
@@ -94,7 +104,11 @@ class Oggify(object):
                 self.encode_file(src, dst)
 
     def reencode(self, act=True):
-        """Encodes all detected files needing re-encoding"""
+        """Encode all files detected that qualify for re-encoding.
+        
+        Encodes all files that exist in both trees where the source has
+        been modified more recently than the destination.
+        """
         for src in self._reencode_k:
             dst = self._reencode[src]
             if os.path.getmtime(src) > os.path.getmtime(dst):
@@ -103,7 +117,11 @@ class Oggify(object):
                     self.encode_file(src, dst)
 
     def retag(self, act=True):
-        """Retag all detected files needing retagging"""
+        """Re-tag all files detected that qualify.
+        
+        Re-tags all files that exist in both trees where the source has been
+        modified more recently than the destination.
+        """
         for src in self._reencode_k:
             dst = self._reencode[src]
             if os.path.getmtime(src) > os.path.getmtime(dst):
@@ -122,9 +140,17 @@ class Oggify(object):
                     os.unlink(item)
 
     def purge(self, act=True):
-        """Purges all files needing purging"""
+        """Deletes all files and directories detected that qualify.
+        
+        Files and directories that only exist in the destination tree will be
+        deleted. Only non-empty directories are removed.
+        """
         self._rm_list(self._purge, act)
 
     def clean(self, act=True):
-        """Cleans all files needing cleaning"""
+        """Deletes all files that qualify for cleaning.
+        
+        Files that exist in the source tree, but are of a different format than
+        is found in the destination are deleted.
+        """
         self._rm_list(self._limited_purge, act)
