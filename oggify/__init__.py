@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os, os.path, sys, re, tempfile, shutil, atexit
+from dircache import listdir
 from oggify import utils
 
 version = '2.0.0rc3'
@@ -134,7 +135,8 @@ class Oggify(object):
             print "Removing %s" % item
             if act:
                 if os.path.isdir(item):
-                    # TODO: Skip if directory not empty
+                    if len(listdir(item)) > 0:
+                        continue
                     os.removedirs(item)
                 else:
                     os.unlink(item)
