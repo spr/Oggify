@@ -62,7 +62,7 @@ def setup_parser(parser):
             dest="verbose", help="More detailed output.")
     parser.set_defaults(verbose=False)
     parser.add_option("-q", "--quality", type="int", dest="quality",
-            help="Sets the quality to n [default=%default]",
+            help="Sets the quality to n (between 0 and 10) [default=%default]",
             metavar="n")
     parser.set_defaults(quality=5)
     parser.add_option("-L", "--follow-symlinks", action="store_true",
