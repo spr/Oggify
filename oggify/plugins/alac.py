@@ -1,4 +1,4 @@
-# oggify.plugins.flac - FLAC decoder plugin for Oggify
+# oggify.plugins.alac - Apple Lossless plugin for Oggify
 # Copyright (c) 2008 Scott Paul Robertson (spr@scottr.org)
 #
 # This is part of Oggify (http://scottr.org/oggify/)
@@ -21,32 +21,36 @@ import tempfile, os, os.path
 from tag_wrapper import tag
 from subprocess import Popen, PIPE, STDOUT
 
+class EncodeWrapper(object):
+    def __init__(self, args, file, src_input, stdout):
+        self.args = args
+        self.file = file
+        self.src_input = src_input
+        self.stdout = stdout
+
+    def wait(self):
+        fd, temp_file = tempfile.mkstemp(suffix='.wav')
+        filefd = os.fdopen(fd, 'w')
+        filefd.write(self.src_input.read())
+        filefd.close()
+        self.src_input.close()
+        self.args += [self.file, temp_file]
+        Popen(self.args, stdout=self.stdout, stderr=STDOUT).wait()
+        os.remove(temp_file)
+
+    returncode = 0
+
+class DecodeWrapper(object):
+    def __init__(self, fd):
+        self.stdout = fd
+
+    returncode = 0
+
 class Codec(object):
     """Oggify Apple Lossless Plugin. (OS X Only)
 Decodes and encodes Apple Lossless files (alac). Looks for .m4a files.
 
 Requires Leopard (10.5) or afconvert to have been manually built."""
-
-    class DecodeWrapper(object):
-        def __init__(self, fd):
-            self.stdout = fd
-
-    class EncodeWrapper(object):
-        def __init__(self, args, file, src_input, stdout):
-            self.args = args
-            self.file = file
-            self.src_input = src_input
-            self.stdout = stdout
-
-        def wait():
-            fd, temp_file = tempfile.mkstemp(suffix='.wav')
-            fildfd = os.fdopen(fd, 'w')
-            filefd.write(self.src_input.read())
-            filefd.close()
-            self.src_input.close()
-            self.args += [self.file, temp_file]
-            Popen(self.args, stdout=self.stdout, stderr=STDOUT).wait()
-            os.remove(temp_file)
 
     extension = property(lambda s: "m4a", doc="m4a")
 
@@ -62,7 +66,9 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
         return EncodeWrapper(args, file, input, stdout)
 
     def get_tags(self, file):
-        return {}
+        return tag(file)
 
     def set_tags(self, file, tags):
-        pass
+        alac_tag = tag(file)
+        alac_tag.update(tags)
+        alac_tag.save()
