@@ -2,6 +2,11 @@
 
 from distutils.core import setup
 from oggify import version
+import os, os.path
+
+if os.uname()[0] != 'Darwin':
+    os.unlink(os.path.join(('oggify', 'plugins', 'aac.py')))
+    os.unlink(os.path.join(('oggify', 'plugins', 'alac.py')))
 
 setup(name='oggify',
       version=version,
@@ -18,7 +23,7 @@ setup(name='oggify',
       packages=['oggify', 'oggify.plugins', 'tag_wrapper'],
       requires=['mutagen'],
       provides=['tag_wrapper', 'oggify'],
-      scripts=['bin/oggify'],
+      scripts=['bin/oggify', 'bin/oggify_wrapper'],
       data_files=[('man/man1', ['man/man1/oggify.1'])],
       license="GNU GPLv2 or later",
       platforms=['linux', 'Apple OS X'],

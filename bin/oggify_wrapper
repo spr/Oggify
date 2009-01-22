@@ -41,16 +41,13 @@ def main(argv=sys.argv):
         args = args[0].split()
 
     for i in xrange(len(args)):
-        if args[i] == '%i':
-            fd, tmpfile = tempfile.mkstemp(suffix=options.extension)
-            os.close(fd)
-            args[i] = tmpfile
-        elif args[i] == '%o':
+        if args[i] == '%i' or args[i] == '%o':
             fd, tmpfile = tempfile.mkstemp(suffix=options.extension)
             os.close(fd)
             args[i] = tmpfile
 
     if options.decode:
+        os.unlink(tmpfile)
         task = subprocess.Popen(args)
         task.wait()
         if task.returncode != 0:

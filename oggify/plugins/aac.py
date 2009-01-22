@@ -20,7 +20,6 @@
 import tempfile, os, os.path
 from tag_wrapper import tag
 from subprocess import Popen, PIPE, STDOUT
-from oggify.plugins.alac import  EncodeWrapper, DecodeWrapper
 
 quality_conversion = [
         ['-b', '64000'],
@@ -56,11 +55,15 @@ Quality:
 
 Requires Leopard (10.5) or afconvert to have been manually built."""
 
+    extension = property(lambda s: "m4a", doc="m4a")
+
     def encode(self, file, quality, nice, input, stdout):
+        os.unlink(file)
         quality = quality_conversion[quality]
-        args = ["nice", "-n", str(nice), "afconvert", "-f", "m4af",
-                "-d", "aac", "-s", "3"] + quality
-        return EncodeWrapper(args, file, input, stdout)
+        args = ["oggify_wrapper", "-e", "-s", ".wav", "--", "nice", "-n", 
+                str(nice), "afconvert", "-f", "m4af", "-d", "aac ", "-s", "3"] \
+                        + quality + ["%i", file]
+        return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
 
     def get_tags(self, file, tags):
         return tag(file)
