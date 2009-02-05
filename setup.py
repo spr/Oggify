@@ -5,8 +5,8 @@ from oggify import version
 import os, os.path
 
 if os.uname()[0] != 'Darwin':
-    os.unlink(os.path.join(('oggify', 'plugins', 'aac.py')))
-    os.unlink(os.path.join(('oggify', 'plugins', 'alac.py')))
+    os.unlink(os.path.join('oggify', 'plugins', 'aac.py'))
+    os.unlink(os.path.join('oggify', 'plugins', 'alac.py'))
 
 setup(name='oggify',
       version=version,
