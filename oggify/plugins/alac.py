@@ -31,7 +31,7 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
 
     def decode(self, file, nice):
         args = ["oggify_wrapper", "-d", "-s", ".wav", "--", "nice", "-n",
-                str(nice), "afconvert", "-f", "WAVE", "-d", "LEI32", file, "%o"]
+                str(nice), "afconvert", "-f", "WAVE", "-d", "LEI32@441000", file, "%o"]
         return Popen(args, stdout=PIPE)
 
     def encode(self, file, quality, nice, input, stdout):
