@@ -57,13 +57,13 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
 
     extension = property(lambda s: "m4a", doc="m4a")
 
-    def encode(self, file, quality, nice, input, stdout):
-        os.unlink(file)
+    def encode(self, dest, source, quality, nice, stdout):
+        os.unlink(dest)
         quality = quality_conversion[quality]
-        args = ["oggify_wrapper", "-e", "-s", ".wav", "--", "nice", "-n", 
-                str(nice), "afconvert", "-f", "m4af", "-d", "aac ", "-s", "3"] \
-                        + quality + ["%i", file]
-        return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
+        args = ["nice", "-n", str(nice), "afconvert", "-f", "m4af", "-d",
+                "aac ", "-s", "3"] + quality + [source, dest]
+        p =  Popen(args, stdout=stdout, stderr=STDOUT)
+        return p.wait()
 
     def get_tags(self, file, tags):
         return tag(file)

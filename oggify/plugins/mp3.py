@@ -54,10 +54,11 @@ Requires "lame" to be in $PATH. http://lame.sf.net"""
 
     extension = property(lambda s: "mp3", doc="mp3")
 
-    def encode(self, file, quality, nice, input, stdout):
+    def encode(self, dest, source, quality, nice, stdout):
         actual = lame_quality_conversion[quality]
-        args = ["nice", "-n", str(nice), "lame"] + actual + ["-", file]
-        return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
+        args = ["nice", "-n", str(nice), "lame"] + actual + [source, dest]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p.wait()
 
     def set_tags(self, file, tags):
         mp3_tags = tag(file)

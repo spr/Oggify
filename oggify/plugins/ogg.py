@@ -34,9 +34,11 @@ Requires "oggenc" to be in $PATH. http://xiph.org"""
 
     extension = property(lambda s: "ogg", doc="ogg")
 
-    def encode(self, file, quality, nice, input, stdout):
-        args = ["nice", "-n", str(nice), "oggenc", "-q", str(quality), "-o", file, "-"]
-        return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
+    def encode(self, dest, source, quality, nice, stdout):
+        args = ["nice", "-n", str(nice), "oggenc", "-q", str(quality),
+                "-o", file, source]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p.wait()
 
     def set_tags(self, file, tags):
         ogg_tags = tag(file)

@@ -19,7 +19,7 @@
 
 from oggify import plugins
 from tag_wrapper import tag
-from subprocess import Popen, PIPE
+from subprocess import Popen, STDOUT
 
 class Codec(object):
     """Oggify FLAC Source Plugin. (default)
@@ -30,9 +30,12 @@ Requires "flac" to be on you $PATH. http://flac.sf.net"""
 
     extension = property(lambda s: "flac", doc="flac")
 
-    def decode(self, file, nice):
-        args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-d", "-c", file]
-        return Popen(args, stdout=PIPE)
+    def decode(self, source, dest, nice, stdout):
+        os.unlink(dest)
+        args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-d",
+                "-o", dest, file]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p.wait()
 
     def set_tags(self, file, tags):
         flac_tag = tag(file)

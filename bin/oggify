@@ -24,10 +24,12 @@ from optparse import OptionParser
 from os import path
 import sys, os, tempfile, signal
 
-temp_file = tempfile.mkstemp()[1]
+etemp_file = tempfile.mkstemp()[1]
+dtemp_file = tempfile.mkstemp()[1]
 
 def handler(signum=0, frame=None):
-    os.unlink(temp_file)
+    os.unlink(etemp_file)
+    os.unlink(dtemp_file)
     sys.exit(-1)
 
 def help(option, opt_str, value, parser):
@@ -134,7 +136,8 @@ def main(argv=sys.argv):
 
     decoder = utils.load_plugin(options.source_plugin, 'decode')
     encoder = utils.load_plugin(options.output_plugin, 'encode')
-    oggify = Oggify(args[0], args[1], options, decoder, encoder, temp_file)
+    oggify = Oggify(args[0], args[1], options, decoder, encoder,
+            etemp_file, dtemp_file)
 
     oggify.encode(not options.pretend)
 
@@ -148,7 +151,8 @@ def main(argv=sys.argv):
     if options.purge:
         oggify.purge(not options.pretend)
 
-    os.unlink(temp_file)
+    os.unlink(etemp_file)
+    os.unlink(dtemp_file)
     return 0
 
 if __name__ == '__main__':

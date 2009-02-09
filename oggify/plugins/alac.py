@@ -17,9 +17,9 @@
 # along with Oggify; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import tempfile, os, os.path
+import os, os.path
 from tag_wrapper import tag
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, STDOUT
 
 class Codec(object):
     """Oggify Apple Lossless Plugin. (OS X Only)
@@ -29,16 +29,19 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
 
     extension = property(lambda s: "m4a", doc="m4a")
 
-    def decode(self, file, nice):
-        args = ["oggify_wrapper", "-d", "-s", ".wav", "--", "nice", "-n",
-                str(nice), "afconvert", "-f", "WAVE", "-d", "LEI32@441000", file, "%o"]
-        return Popen(args, stdout=PIPE)
+    def decode(self, source, dest, nice, stdout):
+        os.unlink(dest)
+        args = ["nice", "-n", str(nice), "afconvert", "-f", "WAVE", "-d",
+                "LEI32@441000", source, dest]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p.wait()
 
-    def encode(self, file, quality, nice, input, stdout):
-        os.unlink(file)
-        args = ["oggify_wrapper", "-e", "-s", ".wav", "--", "nice", "-n",
-                str(nice), "afconvert", "-f", "m4af", "-d", "alac", "%i", file]
-        return Popen(args, stdin=input, stdout=stdout, stderr=STDOUT)
+    def encode(self, dest, source, quality, nice, stdout):
+        os.unlink(dest)
+        args = ["nice", "-n", str(nice), "afconvert", "-f", "m4af", "-d",
+                "alac", source, dest]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p.wait()
 
     def get_tags(self, file):
         return tag(file)

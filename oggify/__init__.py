@@ -21,12 +21,13 @@ import os, os.path, sys, re, tempfile, shutil, atexit
 from dircache import listdir
 from oggify import utils
 
-version = '2.0.1'
+version = '2.0.2'
 
 class Oggify(object):
     """Class for the oggify object that does all the work for Oggify"""
 
-    def __init__(self, src, dst, options, decoder, encoder, temp_file=None):
+    def __init__(self, src, dst, options, decoder, encoder, 
+            encode_temp_file=None, decode_temp_file=None):
         """Constructor.
 
         Keyword arguments:
@@ -51,11 +52,20 @@ class Oggify(object):
         self._decoder = decoder
         self._encoder = encoder
 
-        if temp_file == None:
-            self._temp_file = tempfile.mkstemp()[1]
-            atexit.register(os.unlink, self._temp_file)
+        if encode_temp_file == None:
+            tmpsuffix = "." + encoder.extension
+            (fd, self._encode_temp_file) = tempfile.mkstemp(suffix=tmpsuffix)
+            os.close(fd)
+            atexit.register(os.unlink, self._encode_temp_file)
         else:
-            self._temp_file = temp_file
+            self._encode_temp_file = encode_temp_file
+
+        if decode_temp_file == None:
+            (fd, self._decode_temp_file) = tempfile.mkstemp(suffix=".wav")
+            os.close(fd)
+            atexit.register(os.unlink, self._decode_temp_file)
+        else:
+            self._decode_temp_file = decode_temp_file
 
         if options.verbose:
             self._output = sys.stdout
@@ -79,17 +89,17 @@ class Oggify(object):
         if not os.path.exists(dir):
             os.makedirs(dir)
 
-        d_process = self._decoder.decode(src, self._nice)
-        e_process = self._encoder.encode(self._temp_file, self._quality,
-                self._nice, d_process.stdout, self._output)
-        e_process.wait()
-        if ((e_process.returncode != 0 
-                and e_process.returncode != None) 
-            or (d_process.returncode != 0 
-                and d_process.returncode != None)):
-            raise utils.OggifyError("encode/decode process failure")
+        returncode = self._decoder.decode(src, self._decode_temp_file,
+                self._nice, self._output)
+        if (returncode != 0):
+            raise utils.OggifyError("Decode process failure")
+        returncode = self._encoder.encode(self._encode_temp_file,
+                self._decode_temp_file, self._quality,
+                self._nice, self._output)
+        if (returncode != 0):
+            raise utils.OggifyError("Encode process failure")
         
-        shutil.copy(self._temp_file, dst)
+        shutil.copy(self._encode_temp_file, dst)
         self._encoder.set_tags(dst, self._decoder.get_tags(src))
 
     def encode(self, act=True):
