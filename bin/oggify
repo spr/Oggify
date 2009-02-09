@@ -24,8 +24,8 @@ from optparse import OptionParser
 from os import path
 import sys, os, tempfile, signal
 
-etemp_file = tempfile.mkstemp()[1]
-dtemp_file = tempfile.mkstemp()[1]
+etemp_file = None
+dtemp_file = None
 
 def handler(signum=0, frame=None):
     os.unlink(etemp_file)
@@ -136,6 +136,10 @@ def main(argv=sys.argv):
 
     decoder = utils.load_plugin(options.source_plugin, 'decode')
     encoder = utils.load_plugin(options.output_plugin, 'encode')
+    tsuffix = "." + encoder.extension
+    global etemp_file, dtemp_file
+    etemp_file = tempfile.mkstemp(suffix=tsuffix)[1]
+    dtemp_file = tempfile.mkstemp(suffix=".wav")[1]
     oggify = Oggify(args[0], args[1], options, decoder, encoder,
             etemp_file, dtemp_file)
 
