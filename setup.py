@@ -5,7 +5,7 @@ from oggify import version
 import os, os.path
 
 if os.uname()[0] != 'Darwin':
-    accp = os.path.join('oggify', 'plugins', 'aac.py')
+    aacp = os.path.join('oggify', 'plugins', 'aac.py')
     alacp = os.path.join('oggify', 'plugins', 'alac.py')
     if os.path.exists(aacp):
         os.unlink(aacp)
