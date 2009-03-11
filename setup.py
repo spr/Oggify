@@ -9,7 +9,7 @@ if os.uname()[0] != 'Darwin':
     alacp = os.path.join('oggify', 'plugins', 'alac.py')
     if os.path.exists(aacp):
         os.unlink(aacp)
-    if os.path.exists(alacp)
+    if os.path.exists(alacp):
         os.unlink(alacp)
 
 setup(name='oggify',
