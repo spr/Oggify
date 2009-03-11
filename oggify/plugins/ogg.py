@@ -36,7 +36,7 @@ Requires "oggenc" to be in $PATH. http://xiph.org"""
 
     def encode(self, dest, source, quality, nice, stdout):
         args = ["nice", "-n", str(nice), "oggenc", "-q", str(quality),
-                "-o", file, source]
+                "-o", dest, source]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
         return p.wait()
 

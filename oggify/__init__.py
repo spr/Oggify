@@ -21,7 +21,7 @@ import os, os.path, sys, re, tempfile, shutil, atexit
 from dircache import listdir
 from oggify import utils
 
-version = '2.0.2'
+version = '2.0.3'
 
 class Oggify(object):
     """Class for the oggify object that does all the work for Oggify"""
@@ -92,12 +92,12 @@ class Oggify(object):
         returncode = self._decoder.decode(src, self._decode_temp_file,
                 self._nice, self._output)
         if (returncode != 0):
-            raise utils.OggifyError("Decode process failure")
+            raise utils.OggifyError("Decode process failure: %d" % returncode)
         returncode = self._encoder.encode(self._encode_temp_file,
                 self._decode_temp_file, self._quality,
                 self._nice, self._output)
         if (returncode != 0):
-            raise utils.OggifyError("Encode process failure")
+            raise utils.OggifyError("Encode process failure: %d" % returncode)
         
         shutil.copy(self._encode_temp_file, dst)
         self._encoder.set_tags(dst, self._decoder.get_tags(src))

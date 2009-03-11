@@ -20,6 +20,7 @@
 from oggify import plugins
 from tag_wrapper import tag
 from subprocess import Popen, STDOUT
+import os
 
 class Codec(object):
     """Oggify FLAC Source Plugin. (default)
@@ -33,7 +34,7 @@ Requires "flac" to be on you $PATH. http://flac.sf.net"""
     def decode(self, source, dest, nice, stdout):
         os.unlink(dest)
         args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-d",
-                "-o", dest, file]
+                "-o", dest, source]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
         return p.wait()
 
