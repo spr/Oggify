@@ -34,14 +34,14 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
         args = ["nice", "-n", str(nice), "afconvert", "-f", "WAVE", "-d",
                 "LEI32@441000", source, dest]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
-        return p.wait()
+        return p
 
     def encode(self, dest, source, quality, nice, stdout):
         os.unlink(dest)
         args = ["nice", "-n", str(nice), "afconvert", "-f", "m4af", "-d",
                 "alac", source, dest]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
-        return p.wait()
+        return p
 
     def get_tags(self, file):
         return tag(file)

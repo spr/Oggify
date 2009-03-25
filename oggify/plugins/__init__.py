@@ -34,35 +34,39 @@ class Codec:
     """
     extension = property(lambda s: "foo", doc="File extension for the codec")
 
-    def encode(self, file, quality, nice, input, stdout):
-        """Prep the encoding process using stdin as the source.
-            file - string of the output file name
+    def encode(self, dest, source, quality, nice, stdout):
+        """Prepare to take a given WAVE file and encode it to the given format
+        located at dest.
+            dest - string of the output file name
+            source - string of the input file name
             quality - A value from 0 to 10 representing the quality of the
                       resulting audio file. See reference plugins for
                       examples.
             nice - Value for nice in this process.
-            input - file handle of the pipe with the raw audio
-            stdout - file handle for stdout of the process
 
         Function only exists in Codecs that support encoding.
 
-        Returns subprocess.Popen(stdin=input, stdout=stdout, stderr=STDOUT)
+        Returns subprocess.Popen(stdout=stdout, stderr=STDOUT)
         """
         raise NotImplementedError("Example Codec")
-    def decode(self, file, nice):
-        """Prep the decoding process using stdout for the data.
-            file - string of the output file name
+
+    def decode(self, source, dest, nice, stdout):
+        """Prepare to take a given file of the format and decode it to a WAVE
+        file at dest.
+            source - string of the input file name
+            dest - string of the output file name
             nice - Value for nice in this process
 
-        Function only exists in Codecs that support encoding
+        Function only exists in Codecs that support decoding.
 
-        Returns subprocess.Popen(stdout=PIPE)
+        Returns subprocess.Popen(stdout=stdout, stderr=STDOUT)
         """
         raise NotImplementedError("Example Codec")
+    
     def set_tags(self, file, tags):
         """Set the tags on a file.
             file - string of the filename to set the tags on
-            tags - dictionary of tags. (tag_wrapper.Tag)
+            tags - dictionary of tags. (e.g. tag_wrapper.Tag)
 
         Only needed on encoding Codecs.
         """
@@ -73,6 +77,6 @@ class Codec:
 
         Only needed on decoding Codecs.
 
-        Returns tags - dictionary of tags. (tag_wrapper.Tag)
+        Returns tags - dictionary of tags. (e.g. tag_wrapper.Tag)
         """
         raise NotImplementedError("Example Codec")

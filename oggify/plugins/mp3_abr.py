@@ -62,7 +62,7 @@ Requires "lame" to be in $PATH. http://lame.sf.net"""
         actual = lame_quality_conversion[quality]
         args = ["nice", "-n", str(nice), "lame"] + actual + [source, dest]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
-        return p.wait()
+        return p
 
     def set_tags(self, file, tags):
         mp3_tags = tag(file)

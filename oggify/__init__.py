@@ -89,13 +89,15 @@ class Oggify(object):
         if not os.path.exists(dir):
             os.makedirs(dir)
 
-        returncode = self._decoder.decode(src, self._decode_temp_file,
+        decode_process = self._decoder.decode(src, self._decode_temp_file,
                 self._nice, self._output)
+        returncode = decode_process.wait()
         if (returncode != 0):
             raise utils.OggifyError("Decode process failure: %d" % returncode)
-        returncode = self._encoder.encode(self._encode_temp_file,
+        encode_process = self._encoder.encode(self._encode_temp_file,
                 self._decode_temp_file, self._quality,
                 self._nice, self._output)
+        return_code = encode_process.wait()
         if (returncode != 0):
             raise utils.OggifyError("Encode process failure: %d" % returncode)
         

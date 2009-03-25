@@ -36,7 +36,14 @@ Requires "flac" to be on you $PATH. http://flac.sf.net"""
         args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-d",
                 "-o", dest, source]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
-        return p.wait()
+        return p
+
+    def encode(self, dest, source, quality, nice, stdout):
+        os.unlink(dest)
+        args = ["nice", "-n", str(nice), "flac", "--totally-silent", "-o",
+                dest, source]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p
 
     def set_tags(self, file, tags):
         flac_tag = tag(file)

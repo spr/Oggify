@@ -38,7 +38,7 @@ Requires "oggenc" to be in $PATH. http://xiph.org"""
         args = ["nice", "-n", str(nice), "oggenc", "-q", str(quality),
                 "-o", dest, source]
         p = Popen(args, stdout=stdout, stderr=STDOUT)
-        return p.wait()
+        return p
 
     def set_tags(self, file, tags):
         ogg_tags = tag(file)

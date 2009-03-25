@@ -63,7 +63,7 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
         args = ["nice", "-n", str(nice), "afconvert", "-f", "m4af", "-d",
                 "aac ", "-s", "3"] + quality + [source, dest]
         p =  Popen(args, stdout=stdout, stderr=STDOUT)
-        return p.wait()
+        return p
 
     def get_tags(self, file, tags):
         return tag(file)
