@@ -61,7 +61,7 @@ Requires Leopard (10.5) or afconvert to have been manually built."""
         os.unlink(dest)
         quality = quality_conversion[quality]
         args = ["nice", "-n", str(nice), "afconvert", "-f", "m4af", "-d",
-                "aac ", "-s", "3"] + quality + [source, dest]
+                "aac ", "-s", "2"] + quality + [source, dest]
         p =  Popen(args, stdout=stdout, stderr=STDOUT)
         return p
 
