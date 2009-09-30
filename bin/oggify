@@ -136,10 +136,15 @@ def main(argv=sys.argv):
 
     decoder = utils.load_plugin(options.source_plugin, 'decode')
     encoder = utils.load_plugin(options.output_plugin, 'encode')
+
     tsuffix = "." + encoder.extension
+
     global etemp_file, dtemp_file
-    etemp_file = tempfile.mkstemp(suffix=tsuffix)[1]
-    dtemp_file = tempfile.mkstemp(suffix=".wav")[1]
+    (fd, etemp_file) = tempfile.mkstemp(suffix=tsuffix)[1]
+    os.close(fd)
+    (fd, dtemp_file) = tempfile.mkstemp(suffix=".wav")[1]
+    os.close(fd)
+
     oggify = Oggify(args[0], args[1], options, decoder, encoder,
             etemp_file, dtemp_file)
 

@@ -99,9 +99,9 @@ class Oggify(object):
                 self._nice, self._output)
         return_code = encode_process.wait()
         if (returncode != 0):
-            raise utils.OggifyError("Encode process failure: %d" % returncode)
+            print "Failed to encode %s. Return code: %d" % (src, returncode)
         
-        shutil.copy(self._encode_temp_file, dst)
+        shutil.copyfile(self._encode_temp_file, dst)
         self._encoder.set_tags(dst, self._decoder.get_tags(src))
 
     def encode(self, act=True):
