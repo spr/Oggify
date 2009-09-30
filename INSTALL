@@ -1,5 +1,6 @@
 To install simply run (as root):
 
-python setup.py install
+ptyhon setup.py build
+sudo python setup.py install
 
 Oggify requires mutagen version 1.11 or later and python 2.4, 2.5, or 2.6.

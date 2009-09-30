@@ -7,12 +7,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version
-# 
+#
 # Oggify is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Oggify; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -20,6 +20,7 @@
 from oggify import plugins
 from tag_wrapper import tag
 from subprocess import Popen, STDOUT
+import os
 
 lame_quality_conversion = [
             ['--abr', '56', '-mm'],
@@ -53,6 +54,13 @@ Quality:
 Requires "lame" to be in $PATH. http://lame.sf.net"""
 
     extension = property(lambda s: "mp3", doc="mp3")
+
+    def decode(self, source, dest, nice, stdout):
+        os.unlink(dest)
+        args = ['nice', '-n', str(nice), 'lame', '--decode', '--silent',
+                source, dest]
+        p = Popen(args, stdout=stdout, stderr=STDOUT)
+        return p
 
     def encode(self, dest, source, quality, nice, stdout):
         actual = lame_quality_conversion[quality]
