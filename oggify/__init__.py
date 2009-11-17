@@ -21,7 +21,7 @@ import os, os.path, sys, re, tempfile, shutil, atexit
 from dircache import listdir
 from oggify import utils
 
-version = '2.0.4'
+version = '2.0.5'
 
 class Oggify(object):
     """Class for the oggify object that does all the work for Oggify"""
