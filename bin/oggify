@@ -140,9 +140,9 @@ def main(argv=sys.argv):
     tsuffix = "." + encoder.extension
 
     global etemp_file, dtemp_file
-    (fd, etemp_file) = tempfile.mkstemp(suffix=tsuffix)[1]
+    (fd, etemp_file) = tempfile.mkstemp(suffix=tsuffix)
     os.close(fd)
-    (fd, dtemp_file) = tempfile.mkstemp(suffix=".wav")[1]
+    (fd, dtemp_file) = tempfile.mkstemp(suffix=".wav")
     os.close(fd)
 
     oggify = Oggify(args[0], args[1], options, decoder, encoder,
