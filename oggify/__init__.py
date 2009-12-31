@@ -147,9 +147,7 @@ class Oggify(object):
             print "Removing %s" % item
             if act:
                 if os.path.isdir(item):
-                    if len(listdir(item)) > 0:
-                        continue
-                    os.removedirs(item)
+                    shutil.rmtree(item, True)
                 else:
                     os.unlink(item)
 

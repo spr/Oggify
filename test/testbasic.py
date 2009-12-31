@@ -209,11 +209,11 @@ class TestOggifyInternals(unittest.TestCase):
         self.dst += create_dst_list(add_src)
 
     def testnonemptydirremove(self):
-        """Validate that a non-empty directory is not deleted"""
+        """Validate that a non-empty directory is deleted"""
         oggify = Oggify(self.src_dir, self.dst_dir, self.options,
                 self.decoder, self.encoder, '/dev/null')
         oggify._rm_list([path.dirname(self.src[0])], True)
-        self.assertEqual(path.exists(path.dirname(self.src[0])), True)
+        self.assertEqual(path.exists(path.dirname(self.src[0])), False)
 
 
 class TestOggifyFunctions(unittest.TestCase):
