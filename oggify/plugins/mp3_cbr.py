@@ -22,17 +22,17 @@ from tag_wrapper import tag
 from subprocess import Popen, STDOUT
 
 lame_quality_conversion = [
-            ['--abr', '56', '-mm'],
-            ['--preset', 'cbr', '64'],
-            ['--preset', 'cbr', '96'],
-            ['--preset', 'cbr', '128'],
-            ['--preset', 'cbr', '160'],
-            ['--preset', 'cbr', '192'],
-            ['--preset', 'cbr', '256'],
-            ['--preset', 'insane'],
-            ['--preset', 'insane'],
-            ['--preset', 'insane'],
-            ['--preset', 'insane'],
+            ['-b', '48'],
+            ['-b', '64'],
+            ['-b', '80'],
+            ['-b', '96'],
+            ['-b', '112'],
+            ['-b', '128'],
+            ['-b', '160'],
+            ['-b', '192'],
+            ['-b', '224'],
+            ['-b', '256'],
+            ['-b', '320'],
         ]
 
 class Codec(object):
@@ -43,14 +43,17 @@ Quality:
     Quality relates to lame(1) options, as follows:
     ------------------------------
     | value |   lame(1) option   |
-    |   0   |  --abr 56 -mm      | (mono, voice only)
-    |   1   |  --preset cbr 64   |
-    |   2   |  --preset cbr 96   |
-    |   3   |  --preset cbr 128  |
-    |   4   |  --preset cbr 160  |
-    |   5   |  --preset cbr 192  |
-    |   6   |  --preset cbr 256  |
-    |  7-10 |  --preset insane   |
+    |   0   |  -b 48             |
+    |   1   |  -b 64             |
+    |   2   |  -b 80             |
+    |   3   |  -b 96             |
+    |   4   |  -b 112            |
+    |   5   |  -b 128            |
+    |   6   |  -b 160            |
+    |   7   |  -b 192            |
+    |   8   |  -b 224            |
+    |   9   |  -b 256            |
+    |  10   |  -b 320            |
     ------------------------------
 
 Requires "lame" to be in $PATH. http://lame.sf.net"""

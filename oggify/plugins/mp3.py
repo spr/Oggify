@@ -23,17 +23,17 @@ from subprocess import Popen, STDOUT
 import os
 
 lame_quality_conversion = [
-            ['--abr', '56', '-mm'],
-            ['--preset', 'medium'],
-            ['--preset', 'medium'],
-            ['--preset', 'standard'],
-            ['--preset', 'standard'],
-            ['--preset', 'standard'],
-            ['--preset', 'extreme'],
-            ['--preset', 'extreme'],
-            ['--preset', 'extreme'],
-            ['--preset', 'extreme'],
-            ['--preset', 'insane'],
+            ['-V', '9'],
+            ['-V', '8'],
+            ['-V', '7'],
+            ['-V', '6'],
+            ['-V', '5'],
+            ['-V', '4'],
+            ['-V', '3'],
+            ['-V', '2'],
+            ['-V', '1'],
+            ['-V', '0'],
+            ['-b', '320'],
         ]
 
 class Codec(object):
@@ -41,15 +41,11 @@ class Codec(object):
 This plugin encodes files as MP3's using VBR encoding and writes the corrent ID3v2.4 and ID3v1.1 tags.
 
 Quality:
-    Quality relates to lame(1) options, as follows:
-    ------------------------------
-    | value |   lame(1) option   |
-    |   0   |  --abr 56 -mm      | (mono, voice only)
-    |  1-2  |  --preset medium   |
-    |  3-5  |  --preset standard |
-    |  6-9  |  --preset extreme  |
-    |  10   |  --preset insane   |
-    ------------------------------
+    Quality relates to lame(1) -V options, but in reverse:
+    -q 0 => -V 9
+    -q 5 => -V 4
+    -q 7 => -V 2
+    -q 10 => -b 320
 
 Requires "lame" to be in $PATH. http://lame.sf.net"""
 
