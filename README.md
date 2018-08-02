@@ -14,6 +14,7 @@ Prerequisites
  * [FLAC](http://flac.sourceforge.net) - For FLAC Support
  * [LAME](http://lame.sourceforge.net) - For MP3 Support
  * [Ogg Vorbis](http://www.vorbis.com) - For Ogg Support
+ * [Opus](http://www.opus-codec.org) - For Opus Support
  * [Mutagen](http://code.google.com/p/mutagen/) - For Tag Support
 
 OS X users can use MP3 out of the box, as well ALAC, and M4A. At a minimum OS X users just need to install Mutagen.
@@ -24,6 +25,7 @@ All formats supported by Oggify:
  * ALAC (OS X only)
  * MP3
  * OGG
+ * OPUS
  * M4A/MP4 (OS X only)
 
 Example
