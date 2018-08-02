@@ -67,6 +67,16 @@ delete your ogg directory and run:
 
 Further switches can be found by running oggify -h.
 
+Ignoring parts of the source directory tree
+-------------------------------------------
+
+By default Oggify ignores subtrees of the source directory tree whose root
+contains a file named '.oggifyignore'. Thus any part of the source directory
+tree can be ignored by adding a file named '.oggifyignore' in the directory
+that should be ignored. Oggify will ignore this directory and all its
+subdirectories. This behaviour can be changed with the \-\-no-ignore-subtrees
+option.
+
 Submitting Plugins
 ------------------
 

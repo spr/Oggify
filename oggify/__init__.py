@@ -38,6 +38,7 @@ class Oggify(object):
             nice -- int, see nice(1)
             quality -- int, 0 - 10
             follow_symlinks -- boolean
+            ignore_subtrees -- boolean
         decoder -- class like oggify.plugins.Codec that handles the source files
         encoder -- class like oggify.plugins.Codec that handles the output files
         temp_file -- file that will be written to during encoding. If passed the
@@ -49,6 +50,7 @@ class Oggify(object):
         self._nice = options.nice
         self._quality = options.quality
         self._symlinks = options.follow_symlinks
+        self._ignore_subtrees = options.ignore_subtrees
         self._decoder = decoder
         self._encoder = encoder
 
@@ -76,7 +78,7 @@ class Oggify(object):
         self._encode, self._reencode, self._limited_purge, self._purge = \
                 utils.diff(src, dst,
                         self._decoder.extension, self._encoder.extension,
-                        self._symlinks)
+                        self._symlinks, self._ignore_subtrees)
 
         self._encode_k = self._encode.keys()
         self._encode_k.sort()

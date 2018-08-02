@@ -70,6 +70,9 @@ def setup_parser(parser):
     parser.add_option("-L", "--follow-symlinks", action="store_true",
             dest="follow_symlinks", help="Follow symlinks in source tree")
     parser.set_defaults(follow_symlinks=False)
+    parser.add_option("-I", "--no-ignore-subtrees", action="store_false",
+            dest="ignore_subtrees", help="By default oggify ignores subtrees of the source directory tree whose root contains a file named '.oggifyignore'. This option turns off this behaviour.")
+    parser.set_defaults(ignore_subtrees=True)
     parser.add_option("-n", "--nice", type="int", dest="nice",
             help="nice the tasks to n [default=%default]",
             metavar="n")

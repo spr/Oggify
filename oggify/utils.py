@@ -29,19 +29,26 @@ class OggifyError(StandardError):
     """Runtime error for Oggify"""
     pass
 
-def _process_walk(current, subdirs, files, encode, dirs, sym, src_ext, dst_ext):
-    for subdir in subdirs:
-        dir = os.path.join(current, subdir)
-        dirs[dir] = None
-        if os.path.islink(dir):
-            sym.append(dir)
-    for file in files:
-        if file.endswith(src_ext):
-            src_fname = os.path.join(current, file)
-            dst_fname = '.'.join(src_fname.split('.')[:-1] + [dst_ext])
-            encode[src_fname] = dst_fname
+def _process_walk(current, subdirs, files, encode, dirs, sym,
+        src_ext, dst_ext, ignore_subtrees):
+    if ignore_subtrees and ".oggifyignore" in files:
+        # Ignore the whole subtree
+        while subdirs:
+            subdirs.pop()
+    else:
+        for subdir in subdirs:
+            dir = os.path.join(current, subdir)
+            dirs[dir] = None
+            if os.path.islink(dir):
+                sym.append(dir)
+        for file in files:
+            if file.endswith(src_ext):
+                src_fname = os.path.join(current, file)
+                dst_fname = '.'.join(src_fname.split('.')[:-1] + [dst_ext])
+                encode[src_fname] = dst_fname
 
-def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False):
+def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False,
+        ignore_subtrees=True):
     sym = []
     dirs = {}
     encode = {}
@@ -49,12 +56,12 @@ def _walk_src_tree(root, src_ext, dst_ext, follow_symlinks=False):
     os.chdir(root)
     for current, subdirs, files in os.walk('.'):
         _process_walk(current[2:], subdirs, files, encode, dirs,
-                sym, src_ext, dst_ext)
+                sym, src_ext, dst_ext, ignore_subtrees)
     if follow_symlinks:
         for dir in sym:
             for current, subdirs, files in os.walk(dir):
                 _process_walk(current, subdirs, files, encode, dirs, sym,
-                        src_ext, dst_ext)
+                        src_ext, dst_ext, ignore_subtrees)
     os.chdir(org_dir)
     return (encode, dirs)
 
@@ -99,7 +106,7 @@ def _adjust_filenames(src_dir, dst_dir, files):
 def _adjust_list_filenames(dir, files):
     return [os.path.join(dir, f) for f in files]
 
-def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
+def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False, ignore_subtrees=True):
     """Produce action structures for Oggify.
         src_dir - the root of the source tree
         src_ext - the extension to use for source files, ie: 'flac'
@@ -119,7 +126,7 @@ def diff(src_dir, dst_dir, src_ext, dst_ext, follow_symlinks=False):
             with src_ext. Any non-src_ext files will wind up here.
     """
     (encode, src_dirs) = _walk_src_tree(src_dir, src_ext, dst_ext, 
-            follow_symlinks)
+            follow_symlinks, ignore_subtrees)
     (encode, reencode, limited_purge, purge) =  _compare_dst_tree(dst_dir,
             src_ext, dst_ext, encode, src_dirs)
     encode = _adjust_filenames(src_dir, dst_dir, encode)
