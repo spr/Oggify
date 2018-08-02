@@ -18,9 +18,9 @@ setup(name='oggify',
       long_description="""Oggify provides the tools needed to convert an
       audio library from one format to another. Orginally designed to handle
       the author's need of FLAC -> Ogg Vorbis. It ships with support for FLAC
-      as the source format, and Ogg Vorbis and MP3 as output formats. Requires
-      flac, vorbis-tools, and lame for full operation. Supports other formats
-      through a plugin system.""",
+      as the source format, and Ogg Vorbis, Opus, and MP3 as output formats.
+      Requires flac, vorbis-tools, opus-tools and lame for full operation.
+      Supports other formats through a plugin system.""",
       author='Scott Paul Robertson',
       author_email='spr@scottr.org',
       url='http://scottr.org/oggify/',
