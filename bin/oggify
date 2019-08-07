@@ -39,13 +39,13 @@ def help(option, opt_str, value, parser):
         try:
             plugin = utils.load_plugin(parser.rargs[0], "__doc__")
         except utils.OggifyError:
-            print "Could not load help for %s" % parser.rargs[0]
-            print parser.epilog
+            print("Could not load help for %s" % parser.rargs[0])
+            print(parser.epilog)
         if plugin.__doc__ == None:
-            print "Could not load help for %s" % parser.rargs[0]
-            print parser.epilog
+            print("Could not load help for %s" % parser.rargs[0])
+            print(parser.epilog)
         else:
-            print plugin.__doc__
+            print(plugin.__doc__)
     sys.exit(0)
 
 def setup_parser(parser):
@@ -95,28 +95,28 @@ def setup_parser(parser):
 
 def verify_options(options):
     if options.quality < 0 or options.quality > 10:
-        print >>sys.stderr, "Quality %s is not between 0 and 10" % options.quality
+        print("Quality %s is not between 0 and 10" % options.quality, file=sys.stderr)
         return False
     if options.source_plugin not in utils.list_plugins('decode'):
-        print >>sys.stderr, "%s not an input plugin" % options.source_plugin
+        print("%s not an input plugin" % options.source_plugin, file=sys.stderr)
         return False
     if options.output_plugin not in utils.list_plugins('encode'):
-        print >>sys.stderr, "%s not an output plugin" % options.output_plugin
+        print("%s not an output plugin" % options.output_plugin, file=sys.stderr)
         return False
     if options.nice < -20 or options.nice > 19:
-        print >>sys.stderr, "Nice value %s not between -20 and 18" % options.nice
+        print("Nice value %s not between -20 and 18" % options.nice, file=sys.stderr)
         return False
     if options.retag and options.refresh:
-        print >>sys.stderr, "--retag and --refresh are mutually exclusive"
+        print("--retag and --refresh are mutually exclusive", file=sys.stderr)
         return False
     return True
 
 def verify_args(args):
     if len(args) != 2:
-        print >>sys.stderr, "Need to specify a source and destination only."
+        print("Need to specify a source and destination only.", file=sys.stderr)
         return False
     if not os.path.exists(args[0]):
-        print >>sys.stderr, "%s does not exist, not a valid src directory" % args[0]
+        print("%s does not exist, not a valid src directory" % args[0], file=sys.stderr)
         return False
     return True
 
