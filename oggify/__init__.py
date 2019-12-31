@@ -20,7 +20,7 @@
 import os, os.path, sys, re, tempfile, shutil, atexit
 from oggify import utils
 
-version = '2.1.0'
+version = '2.2.0'
 
 class Oggify(object):
     """Class for the oggify object that does all the work for Oggify"""
