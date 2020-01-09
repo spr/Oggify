@@ -89,16 +89,14 @@ def check_files(files):
     return ret
 
 def compare_timestamps(left, right, mode):
+    left_mtimes = [path.getmtime(x) for x in left]
+    right_mtimes = [path.getmtime(x) for x in right]
     if mode == '<':
-        expected_result = -1
+        return left_mtimes < right_mtimes
     elif mode == '==':
-        expected_result = 0
+        return left_mtimes == right_mtimes
     else:
-        expected_result = 1
-    for l,r in zip(left, right):
-        if cmp(path.getmtime(l), path.getmtime(r)) != expected_result:
-            return False
-    return True
+        return left_mtimes > right_mtimes
 
 class AttrHash(object):
     def __init__(self, hash):
@@ -121,6 +119,7 @@ class TestOggifyInternals(unittest.TestCase):
                 'nice': 10,
                 'quality': 5,
                 'follow_symlinks': False,
+                'ignore_subtrees': True,
             })
         make_files(self.src)
 
@@ -134,7 +133,7 @@ class TestOggifyInternals(unittest.TestCase):
         """Validate that on a new dst tree, only encode is present"""
         oggify = Oggify(self.src_dir, self.dst_dir, self.options, 
                 self.decoder, self.encoder, '/dev/null')
-        sev = oggify._encode.values()
+        sev = list(oggify._encode.values())
         sev.sort()
 
         self.assertEqual(oggify._encode_k, self.src)
@@ -156,7 +155,7 @@ class TestOggifyInternals(unittest.TestCase):
 
         oggify = Oggify(self.src_dir, self.dst_dir, self.options,
                 self.decoder, self.encoder, '/dev/null')
-        sev = oggify._encode.values()
+        sev = list(oggify._encode.values())
         sev.sort()
 
         self.assertEqual(oggify._encode_k, add_src)
@@ -171,7 +170,7 @@ class TestOggifyInternals(unittest.TestCase):
 
         oggify = Oggify(self.src_dir, self.dst_dir, self.options,
                 self.decoder, self.encoder, '/dev/null')
-        rev = oggify._reencode.values()
+        rev = list(oggify._reencode.values())
         rev.sort()
 
         self.assertEqual(oggify._reencode_k, self.src)
@@ -232,6 +231,7 @@ class TestOggifyFunctions(unittest.TestCase):
                 'nice': 10,
                 'quality': 5,
                 'follow_symlinks': False,
+                'ignore_subtrees': True,
             })
         make_files(self.src)
 
@@ -245,7 +245,7 @@ class TestOggifyFunctions(unittest.TestCase):
         """Validate that encode works correctly"""
         oggify = Oggify(self.src_dir, self.dst_dir, self.options,
                 self.decoder, self.encoder)
-        sev = oggify._encode.values()
+        sev = list(oggify._encode.values())
         sev.sort()
 
         oggify.encode()
@@ -264,7 +264,7 @@ class TestOggifyFunctions(unittest.TestCase):
 
         oggify = Oggify(self.src_dir, self.dst_dir, self.options,
                 self.decoder, self.encoder)
-        sev = oggify._encode.values()
+        sev = list(oggify._encode.values())
         sev.sort()
 
         oggify.encode()

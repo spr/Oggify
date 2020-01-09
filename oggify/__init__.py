@@ -18,10 +18,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import os, os.path, sys, re, tempfile, shutil, atexit
-from dircache import listdir
 from oggify import utils
 
-version = '2.0.7'
+version = '2.2.0'
 
 class Oggify(object):
     """Class for the oggify object that does all the work for Oggify"""
@@ -80,9 +79,9 @@ class Oggify(object):
                         self._decoder.extension, self._encoder.extension,
                         self._symlinks, self._ignore_subtrees)
 
-        self._encode_k = self._encode.keys()
+        self._encode_k = list(self._encode.keys())
         self._encode_k.sort()
-        self._reencode_k = self._reencode.keys()
+        self._reencode_k = list(self._reencode.keys())
         self._reencode_k.sort()
 
     def encode_file(self, src, dst):
@@ -101,7 +100,7 @@ class Oggify(object):
                 self._nice, self._output)
         return_code = encode_process.wait()
         if (returncode != 0):
-            print "Failed to encode %s. Return code: %d" % (src, returncode)
+            print("Failed to encode %s. Return code: %d" % (src, returncode))
         
         shutil.copyfile(self._encode_temp_file, dst)
         self._encoder.set_tags(dst, self._decoder.get_tags(src))
@@ -114,7 +113,7 @@ class Oggify(object):
         """
         for src in self._encode_k:
             dst = self._encode[src]
-            print "Encoding %s to %s" % (src, dst)
+            print("Encoding %s to %s" % (src, dst))
             if act:
                 self.encode_file(src, dst)
 
@@ -127,7 +126,7 @@ class Oggify(object):
         for src in self._reencode_k:
             dst = self._reencode[src]
             if os.path.getmtime(src) > os.path.getmtime(dst):
-                print "Re-encoding %s to %s" % (src, dst)
+                print("Re-encoding %s to %s" % (src, dst))
                 if act:
                     self.encode_file(src, dst)
 
@@ -140,13 +139,13 @@ class Oggify(object):
         for src in self._reencode_k:
             dst = self._reencode[src]
             if os.path.getmtime(src) > os.path.getmtime(dst):
-                print "Retagging %s with %s" % (dst, src)
+                print("Retagging %s with %s" % (dst, src))
                 if act:
                     self._encoder.set_tags(dst, self._decoder.get_tags(src))
 
     def _rm_list(self, items, act):
         for item in items:
-            print "Removing %s" % item
+            print("Removing %s" % item)
             if act:
                 if os.path.isdir(item):
                     shutil.rmtree(item, True)

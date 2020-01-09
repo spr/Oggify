@@ -25,7 +25,7 @@ file trees for processing.
 
 import os, os.path, sys, re
 
-class OggifyError(StandardError):
+class OggifyError(Exception):
     """Runtime error for Oggify"""
     pass
 
