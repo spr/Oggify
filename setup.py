@@ -38,7 +38,7 @@ setup(name='oggify',
           'License :: OSI Approved :: GNU General Public License (GPL)',
           'Operating System :: MacOS :: MacOS X',
           'Operating System :: POSIX :: Linux',
-          'Programming Language :: Python',
+          'Programming Language :: Python :: 3 :: Only',
           'Topic :: Multimedia :: Sound/Audio :: Conversion',
           ]
      )
